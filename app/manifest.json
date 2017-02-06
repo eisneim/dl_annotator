@@ -31,7 +31,8 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["lib/react.js", "lib/react-dom.js", "js/dl_annotator.js"]
+      "css": ["css/app.css"],
+      "js": ["js/app_cs.js"]
     }
   ],
   "commands": {}
