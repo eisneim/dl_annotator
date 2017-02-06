@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+  "name": "dl-annotator",
+  "version": "0.1.0",
+  "description": "create image annotation for object detection and localization",
+  "author": "eisneim<eisneim1@gmail.com>",
+  "homepage_url": "http://blog.glexe.com",
+  "icons": {
+    "16": "img/logo-16.png",
+    "48": "img/logo-48.png",
+    "128": "img/logo-128.png"
+  },
+  "browser_action": {
+    "default_icon": "img/logo-48.png",
+    "default_popup": "popup.html"
+  },
+  "offline_enabled": true,
+  "options_page": "options.html",
+  "options_ui": {
+    "chrome_style": true,
+    "page": "options.html"
+  },
+  "permissions": [
+    "tabs", "activeTab", "storage", "notifications", "contextMenus",
+    "<all_urls>"
+  ],
+  "background": {
+    "persistent": true,
+    "scripts": ["js/background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["lib/react.js", "lib/react-dom.js", "js/dl_annotator.js"]
+    }
+  ],
+  "commands": {}
+}
