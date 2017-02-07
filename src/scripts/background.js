@@ -1,1 +1,1 @@
-console.log('--this is backgroundjs --')
+console.log('--this is backgroundjs ', Date.now())

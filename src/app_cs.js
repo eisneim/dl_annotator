@@ -16,4 +16,3 @@ class DLAnnotator {
 
 var annotator = new DLAnnotator()
 annotator.render()
-

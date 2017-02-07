@@ -21,18 +21,20 @@
     "page": "options.html"
   },
   "permissions": [
-    "tabs", "activeTab", "storage", "notifications", "contextMenus",
+    "activeTab", "tabs", "storage", "notifications", "contextMenus",
     "<all_urls>"
   ],
   "background": {
     "persistent": true,
-    "scripts": ["js/background.js"]
+    "scripts": ["livereload.js","js/background.js"]
   },
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
       "css": ["css/app.css"],
-      "js": ["js/app_cs.js"]
+      "js": [
+        "js/app_cs.js"
+      ]
     }
   ],
   "commands": {}

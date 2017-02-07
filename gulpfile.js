@@ -14,6 +14,8 @@ var browserify = require("browserify")
 var watchify = require("watchify")
 var babelify = require("babelify")
 
+var tinylr = require("tiny-lr")
+
 var onError = function(err) {
   console.log("gulp encountered some Error")
   console.error(err)
@@ -91,8 +93,20 @@ gulp.task("watch-sass", function() {
   gulp.watch("./scss/**/*.scss", ["sass"])
 })
 
+gulp.task("reload", function() {
+  var lr = tinylr()
+  lr.listen(35729)
+  gulp.watch(["./app/**/*.{js,css,html}"], function(evt) {
+    console.log("---- should live reload ------")
+    lr.changed({
+      body: { files: [evt.path] },
+    })
+  })
+})
+
 // -----------------------------------------------------------------------------
-gulp.task("default", ["watch-sass", "watchjs", "watch-scripts"])
+gulp.task("default", ["watch-sass", "watchjs", "watch-scripts", "reload"])
 gulp.task("build", ["sass", "buildjs", "scripts"])
+
 
 
