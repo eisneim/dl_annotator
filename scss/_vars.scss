@@ -1,0 +1,60 @@
+@import "color-palette.scss";
+
+// Font Variables
+$font-family: RobotoDraft, Roboto, 'Helvetica Neue', sans-serif !default;
+
+$bg-accent: #efefef;
+
+
+// -------------- color-sechema for node background
+// -------------- or path stroke ---------------
+$c-pale-orange:#f9bf82;
+$c-pale-pink:  #f5886e;
+$c-pale-cyan:  #84c7ac;
+$c-pale-lime:  #dae7a0;
+$c-pale-green: #3abea9;
+$c-deep-pink:  #c771ad;
+$c-deep-green: #2e9b84;
+$c-pale-blue:  #3398c7;
+$c-pale-yellow:#eded75;
+$c-deep-yellow:#f9c653;
+$c-pale-purple:#ada6d0;
+$c-deep-purple:#675da7;
+$c-light-purple:#7381bf;
+$c-light-red:  #f26969;
+$c-deep-cyan:  #1e6b77;
+$c-light-pink: #b48998;
+$c-light-coffee:#654b55;
+$c-deep-orange:#f08d4c;
+$c-dark-purple:#694d77;
+$c-deep-coffee:#8e4f25;
+$c-deep-blue:  #535baa;
+$c-light-blue: #7da3d6;
+
+
+$whiteframe-shadow-z1: 0px 2px 5px 0 rgba(0,0,0,0.26);
+$whiteframe-zindex-z1: 1;
+$whiteframe-shadow-z2: 0px 8px 17px rgba(0,0,0,0.2);
+$whiteframe-zindex-z2: 2;
+$whiteframe-shadow-z3: 0px 17px 50px rgba(0,0,0,0.19);
+$whiteframe-zindex-z3: 3;
+$whiteframe-shadow-z4: 0px 16px 28px 0 rgba(0,0,0,0.22);
+$whiteframe-zindex-z4: 4;
+$whiteframe-shadow-z5: 0px 27px 24px 0 rgba(0,0,0,0.2);
+$whiteframe-zindex-z5: 5;
+
+// Easing Curves
+//--------------------------------------------
+
+$swift-ease-out-duration: 0.4s;
+$swift-ease-out-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+$swift-ease-out: all $swift-ease-out-duration $swift-ease-out-timing-function;
+
+$swift-ease-in-duration: 0.3s;
+$swift-ease-in-timing-function: cubic-bezier(0.55, 0, 0.55, 0.2);
+$swift-ease-in: all $swift-ease-in-duration $swift-ease-in-timing-function;
+
+$swift-ease-in-out-duration: 0.5s;
+$swift-ease-in-out-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+$swift-ease-in-out: all $swift-ease-in-out-duration $swift-ease-in-out-timing-function;
+

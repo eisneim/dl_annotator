@@ -1,6 +1,19 @@
-body {
-  background: blue;
-}
-h1 {
-  border: solid 1px blue;
+@import "_vars.scss";
+@import "reset.scss";
+@import "layout.scss";
+@import "material-icon.scss";
+
+@import "globalComponentClasses.scss";
+@import "globalLayoutClasses.scss";
+
+@import "../src/components/App.scss";
+
+._dla_{
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: $font-family;
+  font-size: 14px;
 }

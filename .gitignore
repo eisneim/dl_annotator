@@ -3,3 +3,4 @@ node_modules/
 dist/
 app/js
 app/css
+npm-debug.log

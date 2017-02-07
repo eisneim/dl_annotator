@@ -1,0 +1,132 @@
+// common layout classes
+._dla_{
+  [padding="10"],[padding],[data-padding="10"],[data-padding]{
+      padding: 10px;
+  }
+  [padding="5"],[data-padding="5"]{
+    padding: 5px;
+  }
+  [padding="15"],[data-padding="15"]{
+    padding: 15px;
+  }
+  ::selection {
+    background: #44FFB4;
+    // background: #0e2026;
+    text-shadow: none;
+    color: #fff;
+  }
+  .dla__container{
+    max-width: 1300px;
+    margin: 0 auto;
+    @media (max-width: 1295px) {
+      margin-right: 10px;
+      margin-left: 10px;
+    }
+  }
+
+  .dla__overflow-hidden{
+    overflow: hidden;
+  }
+  .dla__hide{
+    display:none;
+  }
+
+  .dla__no-scroll{
+    overflow:hidden;
+  }
+
+  .dla__clearfix{
+    &:before,
+    &:after {
+      content: " "; /* 1 */
+      display: table; /* 2 */
+    }
+    &:after {
+      clear: both;
+    }
+  }
+
+  .dla__ulblock {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dla__center-block {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .dla__pull-right {
+    float: right !important;
+  }
+
+  .dla__pull-left {
+    float: left !important;
+  }
+
+  .dla__text-left{text-align: left;}
+  .dla__text-center{text-align: center;}
+  .dla__text-right{text-align: right;}
+
+  // ------------------------
+  // ul{
+  //   padding:0;
+  //   list-style: none;
+  // }
+  // a{
+  //   color: map-get($color-blue,'500');
+  // }
+  // ------------flex box---------
+  .dla__flex-row{
+    display: flex;
+    flex-direction: row;
+    // align-items: center;
+  }
+  .dla__flex-column{
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+  }
+  .dla__flex-center{
+    display: flex;
+    align-items: center; // horizontal
+    justify-content: center; // vertical-align
+  }
+  .dla__flex{
+    // flex:1 1 auto;
+    // flex-grow:auto;
+    flex:1;
+    align-self:center;
+    // 用下面参数指定自己的位置
+    // align-self: auto | flex-start | flex-end | center | baseline | stretch;
+  }
+
+  // -----------------
+  // -======================================= center an div =============
+    /* This parent can be any width and height */
+    .dla__centered-wraper {
+      text-align: center;
+    }
+    /* The ghost, nudged to maintain perfect centering */
+    .dla__centered-wraper:before {
+      content: '';
+      display: inline-block;
+      height: 100%;
+      vertical-align: middle;
+      margin-right: -0.25em; /* Adjusts for spacing */
+    }
+
+    /* The element to be centered, can
+       also be of any width and height */
+    .dla__centered {
+      display: inline-block;
+      vertical-align: middle;
+      max-width: 95%;
+    }
+
+}
+
+
+

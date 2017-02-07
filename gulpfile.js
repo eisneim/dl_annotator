@@ -84,6 +84,7 @@ gulp.task("watch-scripts", function() {
 gulp.task("sass", function() {
   gulp.src("./scss/app.scss")
     .pipe(sass())
+    .on("error", onError)
     .pipe(autoprefixer({ browsers: ['last 2 versions'] }))
     .pipe(minifyCSS())
     .pipe(gulp.dest("./app/css"))

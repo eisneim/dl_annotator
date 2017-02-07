@@ -6,6 +6,7 @@ import App from './components/App'
 class DLAnnotator {
   constructor() {
     this.$wraper = document.createElement("div")
+    this.$wraper.classname = "_dla_"
     document.body.appendChild(this.$wraper)
   }
 
