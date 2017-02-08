@@ -24,6 +24,9 @@
     "activeTab", "tabs", "storage", "notifications", "contextMenus",
     "<all_urls>"
   ],
+  "web_accessible_resources":[
+    "fonts/*"
+  ],
   "background": {
     "persistent": true,
     "scripts": ["livereload.js","js/background.js"]

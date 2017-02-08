@@ -25,42 +25,51 @@ var onError = function(err) {
 var ISPRODUCTION = process.env.NODE_ENV === "production"
 
 function compile(isWatch) {
-  var bundler = browserify("./src/app_cs.js", { debug: !ISPRODUCTION })
+  var rebundle
+  var bundler = browserify("./src/app_cs.js", {
+    basedir: __dirname,
+    debug: !ISPRODUCTION,
+    cache: {}, // required for watchify
+    packageCache: {}, // required for watchify
+    fullPaths: isWatch // required to be true only for watchify
+  })
     // .transform(babelify, { presets: ["es2015", "react"] })
+  if (isWatch) {
+    console.log("----- use watchify -----")
+    bundler = watchify(bundler)
+  }
 
-  function rebundle() {
+  rebundle = function() {
+    var startTime = Date.now()
     bundler.transform(babelify).bundle()
       .on("error", onError)
       .pipe(source("app_cs.js"))
       .pipe(buffer())
-      .pipe(sourcemaps.init({ loadMaps: true }))
-      .pipe(sourcemaps.write('.'))
+      // .pipe(sourcemaps.init({ loadMaps: true }))
+      // .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest("./app/js/"))
+      .on("end", function() {
+        console.log("bounle ended ", (startTime - Date.now()) / 1000, 's')
+      })
   }
 
   if (isWatch) {
-    bundler = watchify(bundler)
     bundler.on('update', function() {
       console.log("-> bundling...")
       rebundle()
-      console.log('----- done -----')
     })
   }
   rebundle()
 }
 
-function watchSrcJS() {
-  return compile(true)
-}
-
-gulp.task("watchjs", function() { return watchSrcJS() })
+gulp.task("watchjs", function() { return compile(true) })
 gulp.task("buildjs", function() { return compile(false) })
 
 gulp.task("scripts", function() {
   gulp.src("./src/scripts/**/*.js")
-    .pipe(sourcemaps.init())
+    // .pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(sourcemaps.write("."))
+    // .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("./app/js/"))
 })
 
@@ -91,7 +100,7 @@ gulp.task("sass", function() {
 })
 
 gulp.task("watch-sass", function() {
-  gulp.watch("./scss/**/*.scss", ["sass"])
+  gulp.watch(["./scss/**/*.scss", "./src/**/*.scss"], ["sass"])
 })
 
 gulp.task("reload", function() {
