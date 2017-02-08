@@ -19,6 +19,7 @@ class Dragable extends React.Component {
   }
 
   _mouseDown = e => {
+    let { noPoro, onDown } = this.props
     // ignore right click && middle click
     // -1: No button pressed
     // 0: Main button pressed, usually the left button
@@ -33,8 +34,10 @@ class Dragable extends React.Component {
     document.addEventListener('mousemove', this._mouseMove)
     document.addEventListener('mouseup', this._mouseUp)
     this.startEvent = e.nativeEvent
-    if (typeof this.props.onDown === 'function')
-      this.props.onDown(e)
+    if (typeof onDown === 'function')
+      onDown(e)
+    if (noPoro)
+      e.stopPropagation()
   }
 
   _mouseMove = e => {
@@ -63,6 +66,7 @@ class Dragable extends React.Component {
 Dragable.propTypes = {
   element: PropTypes.string,
   cascade: PropTypes.bool,
+  noPoro: propTypes.bool,
   handle: PropTypes.string,
   onMove: PropTypes.func,
   onDown: PropTypes.func,
@@ -72,6 +76,7 @@ Dragable.propTypes = {
 Dragable.defaultProps = {
   element: 'div',
   cascade: false,
+  noPoro: false,
   handle: 'dla_dg_handle',
 }
 

@@ -2,7 +2,7 @@ import React from "react/dist/react"
 import { IconButton } from "./Button"
 
 export default ({ title, data, onRemove}) => {
-  let content = typeof data.content === "string" ? data.content : JSON.stringify(data.content)
+  let content = typeof data === "string" ? data : JSON.stringify(data.points)
   return (
     <div className="dla__adBox">
       <h4>{title}</h4>

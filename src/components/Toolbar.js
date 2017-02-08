@@ -2,12 +2,12 @@ import React from "react/dist/react"
 import { IconButton } from "./Button"
 
 export const TOOLS = [
-  ["CROP", "crop"],
-  ["SCALE", "filter_none"],
-  ["RECT", "crop_square"],
-  ["POLYGON", "format_shapes"],
-  ["CONTOUR", "timeline"],
-  ["PENTOOL", "create"],
+  ["CROP", "crop", ""],
+  ["SCALE", "filter_none", ""],
+  ["RECT", "crop_square", "Reactangle"],
+  ["POLYGON", "format_shapes", "Polygon"],
+  ["CONTOUR", "timeline", "Contour"],
+  ["PENTOOL", "create", "Path"],
 ]
 
 export default class Toolbar extends React.Component {

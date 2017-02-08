@@ -164,12 +164,20 @@ export default function createApp(annotator) {
           let height = Math.abs(p[0].y - p[1].y)
           let left = Math.min(p[0].x, p[1].x), top = Math.min(p[0].y, p[1].y)
           return (
-            <div className="dla__anno_rect" style={{width, height, top, left}}/>
+            <div key={node.id} className="dla__anno_rect" style={{width, height, top, left}}/>
           )
         } else {
           // @TODO: add other node
           return null
         }
+      })
+    }
+
+    $getAnnoData() {
+      const { createdNodes } = this.state
+      return createdNodes.map(node => {
+        let tool = TOOLS.find(t => t[0] == node.type)
+        return <AnnoDataBox title={tool[2]} data={node} key={node.id}/>
       })
     }
 
@@ -196,7 +204,7 @@ export default function createApp(annotator) {
             </section>
             <section className="dla__options">
               <Toolbar onSelect={this._onSelectTool} disabled={disabledTools} selected={selectedTool}/>
-              <AnnoDataBox title="Reactangles" data={{content: "34, 88, 203, 20"}}/>
+              { this.$getAnnoData() }
               <div className="dla__option--actions" data-layout="row">
                 <span data-flex/>
                 <Button onClick={this._onUpload} size="md" raised>Upload</Button>
