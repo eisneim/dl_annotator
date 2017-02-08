@@ -1,6 +1,6 @@
 import React from "react/dist/react"
 import ReactDOM from "react-dom/dist/react-dom"
-import App from './components/App'
+import createApp from './components/App'
 
 function addFontFace() {
   var styleTag = document.createElement('style')
@@ -33,7 +33,12 @@ class DLAnnotator {
   }
 
   render() {
+    let App = createApp(this)
     ReactDOM.render(<App/>, this.$wraper)
+  }
+
+  destroy() {
+    this.$wraper.removeChild(this.$wraper.firstChild)
   }
 }
 
