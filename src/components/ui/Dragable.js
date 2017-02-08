@@ -1,11 +1,7 @@
 import React, { PropTypes } from 'react/dist/react'
 import { findDOMNode } from "react-dom/dist/react-dom"
 
-class Draxtends React.Component {static defaultProps = {
-  element: 'div',
-  cascade: false,
-  handle: 'cy_dg_handle',
-}
+class Dragable extends React.Component {
 
   componentDidMount() {
     this.$dom = findDOMNode(this)
@@ -55,6 +51,7 @@ class Draxtends React.Component {static defaultProps = {
 
   render() {
     return React.createElement(this.props.element, Object.assign({}, {
+      onClick: this.props.onClick,
       onMouseDown: this._mouseDown,
       className: this.props.className,
       style: this.props.style,
@@ -75,7 +72,7 @@ Dragable.propTypes = {
 Dragable.defaultProps = {
   element: 'div',
   cascade: false,
-  handle: 'cy_dg_handle',
+  handle: 'dla_dg_handle',
 }
 
 export default Dragable

@@ -1,6 +1,5 @@
 import React from "react/dist/react"
 import ReactDOM from "react-dom/dist/react-dom"
-
 import App from './components/App'
 
 function addFontFace() {
@@ -40,3 +39,5 @@ class DLAnnotator {
 
 var annotator = new DLAnnotator()
 annotator.render()
+
+

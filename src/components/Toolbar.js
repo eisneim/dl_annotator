@@ -1,7 +1,7 @@
 import React from "react/dist/react"
 import { IconButton } from "./Button"
 
-const TOOLS = [
+export const TOOLS = [
   ["CROP", "crop"],
   ["SCALE", "filter_none"],
   ["RECT", "crop_square"],
@@ -13,15 +13,20 @@ const TOOLS = [
 export default class Toolbar extends React.Component {
 
   render() {
-    let { onToolClick, activeTool } = this.props
+    let { onSelect, selected, disabled } = this.props
     return (
       <ul className="dla__ulblock dla__toolbar">
       {
-        TOOLS.map(m => (
-          <li className={activeTool === m[1] ? "dla__Active" : ""} key={m[0]}>
-            <IconButton onClick={() => onToolClick(m[0])} name={m[1]}/>
-          </li>
-        ))
+        TOOLS.map(m => {
+          let isActive = selected === m[0]
+          return (
+            <li className={isActive ? "dla__Active" : ""} key={m[0]}>
+              <IconButton disabled={disabled && disabled.indexOf(m[0]) > -1}
+                colored={isActive}
+                onClick={() => onSelect(m[0])} name={m[1]}/>
+            </li>
+          )
+        })
       }
       </ul>
     )

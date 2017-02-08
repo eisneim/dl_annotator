@@ -1,6 +1,6 @@
 
 $btn-color: #333;
-$btn-color-disabled: #666;
+$btn-color-disabled: #aaa;
 $btn-color-active: map-get($color-blue, "400");
 $btn-color-accent: map-get($color-pink, "400");
 
@@ -21,11 +21,11 @@ $btn-color-accent: map-get($color-pink, "400");
   &:hover{
     background-color: rgba(0,0,0,0.1);
   }
-  &.disabled{
+  &.dla__disabled{
     color: $btn-color-disabled;
     cursor: not-allowed;
   }
-  &:not(.rounded){
+  &:not(.dla__rounded){
     i{ margin-right: 3px; }
   }
 }

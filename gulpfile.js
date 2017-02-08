@@ -104,7 +104,10 @@ gulp.task("watch-sass", function() {
 })
 
 gulp.task("reload", function() {
-  var lr = tinylr()
+  var lr = tinylr({
+    liveCSS: false,
+    liveImg: false,
+  })
   lr.listen(35729)
   gulp.watch(["./app/**/*.{js,css,html}"], function(evt) {
     console.log("---- should live reload ------")
