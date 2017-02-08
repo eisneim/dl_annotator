@@ -30,6 +30,8 @@ class DLAnnotator {
     this.$wraper.classname = "_dla_"
     document.body.appendChild(this.$wraper)
     addFontFace()
+    // id counter
+    this.__id = 0
   }
 
   render() {
@@ -39,6 +41,10 @@ class DLAnnotator {
 
   destroy() {
     this.$wraper.removeChild(this.$wraper.firstChild)
+  }
+
+  id() {
+    return this.__id++
   }
 }
 

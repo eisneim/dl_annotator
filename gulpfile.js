@@ -38,10 +38,11 @@ function compile(isWatch) {
     console.log("----- use watchify -----")
     bundler = watchify(bundler)
   }
+  bundler.transform(babelify)
 
   rebundle = function() {
     var startTime = Date.now()
-    bundler.transform(babelify).bundle()
+    bundler.bundle()
       .on("error", onError)
       .pipe(source("app_cs.js"))
       .pipe(buffer())
