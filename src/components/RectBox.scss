@@ -1,0 +1,31 @@
+$rectBorder: solid 1px map-get($color-blue, "500");
+
+.dla__anno_rect {
+  position:absolute;
+  border: $rectBorder;
+  box-shadow: $whiteframe-shadow-z1;
+  background-color: rgba(255,255,255, 0.2);
+  display: flex;
+  align-items: center; // horizontal
+  justify-content: center; // vertical-align
+}
+
+.dla__rect_handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: $rectBorder;
+  background-color: #fff;
+  cursor: move;
+  &:hover {
+    background-color: map-get($color-blue, "500");
+  }
+  &.dla__handle_0 {
+    top: -5px;
+    left: -5px;
+  }
+  &.dla__handle_1 {
+    bottom: -5px;
+    right: -5px;
+  }
+}

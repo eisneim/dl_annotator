@@ -66,7 +66,7 @@ class Dragable extends React.Component {
 Dragable.propTypes = {
   element: PropTypes.string,
   cascade: PropTypes.bool,
-  noPoro: propTypes.bool,
+  noPoro: PropTypes.bool,
   handle: PropTypes.string,
   onMove: PropTypes.func,
   onDown: PropTypes.func,

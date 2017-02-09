@@ -3,13 +3,14 @@ import { findDOMNode } from "react-dom/dist/react-dom"
 import Toolbar, { TOOLS } from './Toolbar'
 import Button, { Icon, IconButton } from "./Button"
 import AnnoDataBox from "./AnnoDataBox"
+import RectBox from "./RectBox"
 import Dragable from "./ui/Dragable"
 
 import { getImgFromSrc } from '../utils/util.image.js'
 
 const log = require("../utils/util.log.js")("App")
 
-export default function createApp(annotator) {
+export default function createApp(annotator, imgSrc) {
   return class App extends React.Component {
 
     constructor() {
@@ -19,6 +20,7 @@ export default function createApp(annotator) {
         msHeight: 0,
         imgInfo: {
           src: "http://7xownv.com2.z0.glb.qiniucdn.com/photos_office_5.JPG?imageView2/2/w/1000",
+          // src: imgSrc,
           width: 0, height: 0,
           fullWidth: 0, fullHeight: 0,
           screenX: 0, screenY: 0,
@@ -135,6 +137,19 @@ export default function createApp(annotator) {
       this.dragStart = null
     }
 
+    _removeNode = id => {
+      let createdNodes = this.state.createdNodes.slice()
+      let idx = createdNodes.findIndex(n => n.id === id)
+      createdNodes.splice(idx, 1)
+      this.setState({ createdNodes: createdNodes })
+    }
+    _updateRect = (id, idx, coord) => {
+      let nodes = this.state.createdNodes.slice()
+      let node = nodes.find(n => n.id === id)
+      node.points[idx] = coord
+      this.setState({ createdNodes: nodes })
+    }
+
     _onSave = () => {
       log("_onSave")
     }
@@ -159,13 +174,7 @@ export default function createApp(annotator) {
       const { createdNodes } = this.state
       return createdNodes.map(node => {
         if (node.type === "RECT") {
-          let p = node.points
-          let width = Math.abs(p[0].x - p[1].x)
-          let height = Math.abs(p[0].y - p[1].y)
-          let left = Math.min(p[0].x, p[1].x), top = Math.min(p[0].y, p[1].y)
-          return (
-            <div key={node.id} className="dla__anno_rect" style={{width, height, top, left}}/>
-          )
+          return <RectBox key={node.id} node={node} onUpdate={this._updateRect}/>
         } else {
           // @TODO: add other node
           return null
@@ -177,7 +186,7 @@ export default function createApp(annotator) {
       const { createdNodes } = this.state
       return createdNodes.map(node => {
         let tool = TOOLS.find(t => t[0] == node.type)
-        return <AnnoDataBox title={tool[2]} data={node} key={node.id}/>
+        return <AnnoDataBox title={tool[2] + node.id} data={node} key={node.id} onRemove={this._removeNode}/>
       })
     }
 

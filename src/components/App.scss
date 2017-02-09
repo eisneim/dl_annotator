@@ -45,12 +45,6 @@
     // outline: solid 1px map-get($color-blue, "400");
     box-shadow: $whiteframe-shadow-z1;
   }
-  .dla__anno_rect {
-    position:absolute;
-    border: solid 1px map-get($color-blue, "500");
-    box-shadow: $whiteframe-shadow-z1;
-    background-color: rgba(255,255,255, 0.2);
-  }
 }
 
 // -----------------------

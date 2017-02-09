@@ -1,6 +1,7 @@
 import React from "react/dist/react"
 import ReactDOM from "react-dom/dist/react-dom"
 import createApp from './components/App'
+const log = require("./utils/util.log.js")("Index")
 
 function addFontFace() {
   var styleTag = document.createElement('style')
@@ -34,8 +35,8 @@ class DLAnnotator {
     this.__id = 0
   }
 
-  render() {
-    let App = createApp(this)
+  render(imgSrc) {
+    let App = createApp(this, imgSrc)
     ReactDOM.render(<App/>, this.$wraper)
   }
 
@@ -51,4 +52,15 @@ class DLAnnotator {
 var annotator = new DLAnnotator()
 annotator.render()
 
+chrome.runtime.onMessage.addListener((msg, sender, reply) => {
+  // request is the message
+  // sender has id property, that's extension id
+  // log("msg", msg)
+  // log("sender", sender)
+  // annotator.render(msg.srcUrl)
+  reply({
+    type: "done",
+    content: "Open Modal"
+  })
+})
 
