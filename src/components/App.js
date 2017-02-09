@@ -151,7 +151,8 @@ export default function createApp(annotator, imgSrc) {
     }
 
     _onSave = () => {
-      log("_onSave")
+      let { imgInfo, createdNodes } = this.state
+      annotator.saveFile(imgInfo.src, createdNodes)
     }
 
     _onUpload = () => {

@@ -47,20 +47,42 @@ class DLAnnotator {
   id() {
     return this.__id++
   }
+
+  saveFile(url, createdNodes) {
+    let msg = {
+      type: "SAVE_FILE", url,
+      filename: "TODO",
+    }
+    log("saveFile msg:", msg)
+    chrome.runtime.sendMessage(msg, response => {
+      log("saveFile res:", response)
+      if (response) {
+        this.destroy()
+      }
+    })
+  }
 }
 
 var annotator = new DLAnnotator()
 annotator.render()
+
+let msgHandlers = {
+  OPEN_MODAL: (msg, sender, reply) => {
+    log("should openModal")
+    annotator.render(msg.srcUrl)
+  }
+}
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   // request is the message
   // sender has id property, that's extension id
   // log("msg", msg)
   // log("sender", sender)
-  // annotator.render(msg.srcUrl)
-  reply({
-    type: "done",
-    content: "Open Modal"
-  })
+  let fn = msgHandlers[msg.type]
+  if (fn) {
+    fn(msg, sender, reply)
+  } else {
+    log("unhandled message:", msg)
+  }
 })
 

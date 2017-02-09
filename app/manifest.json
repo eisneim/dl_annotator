@@ -21,7 +21,7 @@
     "page": "options.html"
   },
   "permissions": [
-    "activeTab", "tabs", "storage", "notifications", "contextMenus",
+    "activeTab", "tabs", "storage", "notifications", "downloads", "contextMenus",
     "<all_urls>"
   ],
   "web_accessible_resources":[
