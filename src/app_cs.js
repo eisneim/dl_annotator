@@ -1,8 +1,10 @@
+
 import React from "react/dist/react"
 import ReactDOM from "react-dom/dist/react-dom"
 import createApp from './components/App'
+import path from "path"
 const log = require("./utils/util.log.js")("Index")
-
+log('chrome', chrome)
 function addFontFace() {
   var styleTag = document.createElement('style')
       styleTag.type = 'text/css'
@@ -23,6 +25,15 @@ function addFontFace() {
 `
   styleTag.textContent = url
   document.head.appendChild(styleTag)
+}
+// delimiter
+const NODE_DEL = "__"
+const POINT_DEL = "--"
+const NODETYPES = {
+  RECT: 0,
+  POLYGON: 1,
+  CONTOUR: 2,
+  PENTOOL: 3,
 }
 
 class DLAnnotator {
@@ -48,10 +59,37 @@ class DLAnnotator {
     return this.__id++
   }
 
+  parseUrl(url) {
+    let aa = document.createElement("a")
+    aa.href = url
+    return aa // now u have protocol, host, hostname, port, pathname, hash, search
+  }
+
   saveFile(url, createdNodes) {
+    if (!createdNodes || createdNodes.length === 0)
+      return alert("No Annotation created")
+    let filename = Date.now().toString()
+    // remove query stirng or other symbol: aa.jpg?size=l&color=1
+    let cleanUrl = this.parseUrl(url).pathname
+    let ext = cleanUrl.substring(cleanUrl.lastIndexOf("."), cleanUrl.length)
+
+    let ns = createdNodes.map(node => {
+      let s = `_c${ node.class }_t${ NODETYPES[node.type] }_`
+      let points = node.points.map(p => {
+        return `x${ p.x.toFixed(2) }_y${ p.y.toFixed(2) }`
+      })
+      return s + points.join(POINT_DEL)
+    })
+    // each node is separated by "--"
+    filename += ns.join(NODE_DEL) + ext.toLowerCase()
+    //max filename length: 255, should check this
+    if (filename.length > 255)
+      alert(`filename length(${filename.length}) is largar than 255, this file might not be able to save to disk
+        in some file system, you should reduce the amount of annotations or change "save annotation" option`)
+
     let msg = {
       type: "SAVE_FILE", url,
-      filename: "TODO",
+      filename: filename,
     }
     log("saveFile msg:", msg)
     chrome.runtime.sendMessage(msg, response => {
