@@ -2,8 +2,54 @@
 <html>
 <head>
   <title>DL-Annotator</title>
+  <style type="text/css">
+    .container {
+      width: 300px;
+    }
+    .dla_classText {
+      margin-right: 5px;
+      background: #eee;
+      border-radius: 3px;
+      padding: 3px;
+    }
+    #classesWraper {
+      padding: 5px;
+      border: solid 1px #efefef;
+    }
+    #classes {
+      margin-bottom: 5px;
+    }
+
+  </style>
 </head>
 <body>
-<h1>popup</h1>
+  <div class="container">
+    <p>setting</p>
+    <form id="mainForm" name="mainForm" action="">
+      <p>local save method:
+        <input id="saveFile" type="radio" name="localSaveMethod" value="FILENAME">
+        <label for="saveFile">filename</label>&nbsp;
+        <input id="saveJSON" type="radio" name="localSaveMethod" value="JSON">
+        <label for="saveJSON">jsonfile</label>
+      </p>
+      <div id="classesWraper">
+        <div id="classes"></div>
+        <div>
+          <label for="newClassName">create new class</label>
+          <input id="newClassName" type="text" name="createClass" style="width:80px">
+          <button id="createClassBtn" type="button">create</button>
+        </div>
+      </div>
+      <p>
+        <label for="defaultClass">Default class:</label>
+        <select id="defaultClass"></select>
+      </p>
+      <p>
+        <label for="server">server Address:</label>
+        <input type="text" name="server" >
+      </p>
+    </form>
+  </div>
+  <script type="text/javascript" src="js/popup.js"></script>
 </body>
 </html>
