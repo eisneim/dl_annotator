@@ -5,21 +5,41 @@
   <style type="text/css">
     .container {
       width: 300px;
+      min-height: 400px;
+      position: relative;
     }
     .dla_classText {
       margin-right: 5px;
       background: #eee;
       border-radius: 3px;
       padding: 3px;
+      line-height: 18px;
+      cursor: pointer;
     }
     #classesWraper {
-      padding: 5px;
+      padding: 8px;
       border: solid 1px #efefef;
     }
     #classes {
       margin-bottom: 5px;
     }
-
+    #message{
+      visibility: hidden;
+      background-color: #eee;
+      color: #4ba87a;
+      padding: 5px;
+      font-size: 14px;
+      position: absolute;
+      width: 100%;
+      top:0;
+      left: 0;
+    }
+    #confirmBox {
+      visibility: hidden;
+      padding: 10px;
+      border: solid 1px #ae4f4e;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -46,10 +66,16 @@
       </p>
       <p>
         <label for="server">server Address:</label>
-        <input type="text" name="server" >
+        <input type="text" name="server" style="width: 100%;">
       </p>
     </form>
+    <div id="confirmBox">
+      <p>.</p>
+      <button>cannel</button>
+      <button>confirm</button>
+    </div>
   </div>
+  <div id="message"><div>
   <script type="text/javascript" src="js/popup.js"></script>
 </body>
 </html>
