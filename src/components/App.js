@@ -10,7 +10,7 @@ import { getImgFromSrc } from '../utils/util.image.js'
 
 const log = require("../utils/util.log.js")("App")
 
-export default function createApp(annotator, imgSrc) {
+export default function createApp(annotator, imgSrc, config) {
   return class App extends React.Component {
 
     constructor() {
@@ -152,7 +152,7 @@ export default function createApp(annotator, imgSrc) {
 
     _onSave = () => {
       let { imgInfo, createdNodes } = this.state
-      annotator.saveFile(imgInfo.src, createdNodes)
+      annotator.saveFile(imgInfo, createdNodes)
     }
 
     _onUpload = () => {
@@ -214,6 +214,7 @@ export default function createApp(annotator, imgSrc) {
             </section>
             <section className="dla__options">
               <Toolbar onSelect={this._onSelectTool} disabled={disabledTools} selected={selectedTool}/>
+              <p style={{fontSize:12}}>{imgInfo.fullWidth}x{imgInfo.fullHeight} ==> {imgInfo.width.toFixed(2)}x{imgInfo.height.toFixed(2)}</p>
               { this.$getAnnoData() }
               <div className="dla__option--actions" data-layout="row">
                 <span data-flex/>

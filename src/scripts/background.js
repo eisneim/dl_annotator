@@ -22,7 +22,16 @@ chrome.contextMenus.create(menuItem)
 
 let msgHandlers = {
   SAVE_FILE: (msg, sender, reply) => {
-    let { filename, url } = msg
+    let { filename, url, method, jsonString, jsonFilename } = msg
+    let dataUrl = "data:text/json;charset=utf-8," + jsonString
+    if (method === "JSON") {
+      chrome.downloads.download({
+        url: dataUrl, filename: jsonFilename,
+      }, downloadId => reply({
+        downloadId, success: true,
+      }))
+    }
+
     chrome.downloads.download({
       url, filename,
       // saveAs: true,

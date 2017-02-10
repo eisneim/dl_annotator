@@ -35,6 +35,7 @@ const NODETYPES = {
   CONTOUR: 2,
   PENTOOL: 3,
 }
+const CONF_KEYS = ["localSaveMethod", "classes", "defaultClass", "server", "idCount"]
 
 class DLAnnotator {
   constructor() {
@@ -47,8 +48,11 @@ class DLAnnotator {
   }
 
   render(imgSrc) {
-    let App = createApp(this, imgSrc)
-    ReactDOM.render(<App/>, this.$wraper)
+    // make sure every render, config object is new
+    chrome.storage.sync.get(CONF_KEYS, config => {
+      let App = createApp(this, imgSrc, config)
+      ReactDOM.render(<App/>, this.$wraper)
+    })
   }
 
   destroy() {
@@ -65,14 +69,8 @@ class DLAnnotator {
     return aa // now u have protocol, host, hostname, port, pathname, hash, search
   }
 
-  saveFile(url, createdNodes) {
-    if (!createdNodes || createdNodes.length === 0)
-      return alert("No Annotation created")
-    let filename = Date.now().toString()
-    // remove query stirng or other symbol: aa.jpg?size=l&color=1
-    let cleanUrl = this.parseUrl(url).pathname
-    let ext = cleanUrl.substring(cleanUrl.lastIndexOf("."), cleanUrl.length)
-
+  dataToStr(createdNodes) {
+    let name = ""
     let ns = createdNodes.map(node => {
       let s = `_c${ node.class }_t${ NODETYPES[node.type] }_`
       let points = node.points.map(p => {
@@ -81,25 +79,51 @@ class DLAnnotator {
       return s + points.join(POINT_DEL)
     })
     // each node is separated by "--"
-    filename += ns.join(NODE_DEL) + ext.toLowerCase()
-    //max filename length: 255, should check this
-    if (filename.length > 255)
-      alert(`filename length(${filename.length}) is largar than 255, this file might not be able to save to disk
+    name += ns.join(NODE_DEL)
+    //max name length: 255, should check this
+    if (name.length > 255)
+      alert(`name length(${name.length}) is largar than 255, this file might not be able to save to disk
         in some file system, you should reduce the amount of annotations or change "save annotation" option`)
 
-    let msg = {
-      type: "SAVE_FILE", url,
-      filename: filename,
-    }
-    log("saveFile msg:", msg)
-    chrome.runtime.sendMessage(msg, response => {
-      log("saveFile res:", response)
-      if (response) {
-        this.destroy()
-      }
-    })
+    return name
   }
-}
+
+  saveFile(imgInfo, createdNodes, ) {
+    let url = imgInfo.src
+    if (!createdNodes || createdNodes.length === 0)
+      return alert("No Annotation created")
+
+    // remove query stirng or other symbol: aa.jpg?size=l&color=1
+    let cleanUrl = this.parseUrl(url).pathname
+    let ext = cleanUrl.substring(cleanUrl.lastIndexOf("."), cleanUrl.length)
+
+    chrome.storage.sync.get(["localSaveMethod", "idCount"], config => {
+      let filename = config.idCount // Date.now().toString()
+      let jsonFilename = filename + ".json"
+      let method = config.localSaveMethod
+      if (method === "FILENAME") {
+        filename += this.dataToStr(createdNodes) + ext
+      } else {
+        filename += ext
+      }
+      let msg = {
+        type: "SAVE_FILE", url, method, filename,
+        jsonString: JSON.stringify(Object.assign({}, imgInfo, { nodes: createdNodes })),
+        jsonFilename,
+      }
+      log("saveFile msg:", msg)
+      chrome.runtime.sendMessage(msg, response => {
+        log("saveFile res:", response)
+        if (response) {
+          this.destroy()
+        }
+      }) // end of sendMessage
+      // increase idCount
+      chrome.storage.sync.set({ idCount: config.idCount + 1})
+    }) // end of get
+  }
+
+} // end of class
 
 var annotator = new DLAnnotator()
 annotator.render()
