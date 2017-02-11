@@ -7,8 +7,8 @@ export default class RectBox extends React.Component {
 
   getOffset(ee, se) {
     return {
-      offsetX: ee.clientX - se.clientX,
-      offsetY: ee.clientY - se.clientY,
+      offsetX: (ee.clientX - se.clientX) * this.props.ratio,
+      offsetY: (ee.clientY - se.clientY) * this.props.ratio,
     }
   }
 
@@ -33,11 +33,12 @@ export default class RectBox extends React.Component {
   }
 
   render() {
-    let { node } = this.props
+    let { node, ratio } = this.props
     let p = node.points
-    let width = Math.abs(p[0].x - p[1].x)
-    let height = Math.abs(p[0].y - p[1].y)
-    let left = Math.min(p[0].x, p[1].x), top = Math.min(p[0].y, p[1].y)
+    let width = Math.abs(p[0].x - p[1].x) / ratio
+    let height = Math.abs(p[0].y - p[1].y) / ratio
+    let left = Math.min(p[0].x, p[1].x) / ratio,
+      top = Math.min(p[0].y, p[1].y) / ratio
 
     return (
       <div key={node.id} className="dla__anno_rect" style={{width, height, top, left}}>

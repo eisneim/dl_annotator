@@ -4,7 +4,8 @@ import Dragable from "./ui/Dragable"
 export default class Polygon extends React.Component {
 
   static defaultProps = {
-    maxPoints: 4
+    maxPoints: 4,
+    ratio: 1,
   };
 
   static propTypes = {
@@ -17,8 +18,8 @@ export default class Polygon extends React.Component {
 
   getOffset(ee, se) {
     return {
-      offsetX: ee.clientX - se.clientX,
-      offsetY: ee.clientY - se.clientY,
+      offsetX: (ee.clientX - se.clientX) * this.props.ratio,
+      offsetY: (ee.clientY - se.clientY) * this.props.ratio,
     }
   }
 
@@ -45,8 +46,8 @@ export default class Polygon extends React.Component {
     const {points} = this.props.node
     return points.map((p, idx) => {
       let styleObj = {
-        top: p.y - 5,
-        left: p.x - 5,
+        top: (p.y - 5) / this.props.ratio,
+        left: (p.x - 5) / this.props.ratio,
       }
 
       return (
@@ -61,12 +62,12 @@ export default class Polygon extends React.Component {
   }
 
   render() {
-    const { width, height, maxPoints, node } = this.props
+    const { width, height, maxPoints, node, ratio } = this.props
     let { points } = node
     let path = ""
     points.forEach((p, idx) => {
       path += idx === 0 ? "M" : "L"
-      path += ` ${p.x} ${p.y} `
+      path += ` ${p.x / ratio} ${p.y / ratio} `
       if (idx === maxPoints - 1) path += "z"
     })
 

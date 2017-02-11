@@ -7,6 +7,7 @@ import RectBox from "./RectBox"
 import Polygon from "./Polygon"
 import Dragable from "./ui/Dragable"
 
+import { dotPrecision } from "../utils/util.math.js"
 import { getImgFromSrc } from '../utils/util.image.js'
 
 const log = require("../utils/util.log.js")("App")
@@ -31,6 +32,8 @@ export default function createApp(annotator, imgSrc, config) {
         createdNodes: [],
         disabledTools: ["CROP", "SCALE", "CONTOUR", "PENTOOL"],
       }
+      // default value, it will change when window resize
+      this.zoomRatio = 1
     }
 
     getMainSecbounding() {
@@ -56,7 +59,7 @@ export default function createApp(annotator, imgSrc, config) {
       }
       screenX = msLeft + (msWidth - width) / 2
       screenY = msTop + (msHeight - height) / 2
-
+      this.zoomRatio = fullWidth / width
       return { width, height, screenY, screenX, fullWidth, fullHeight}
     }
 
@@ -106,17 +109,20 @@ export default function createApp(annotator, imgSrc, config) {
         imgInfo: calced
       })
     }
-
+    // this coord is based on image full width and height!
     screenCoordToImgCoord(xx, yy) {
-      let x = xx - this.state.imgInfo.screenX
-      let y = yy - this.state.imgInfo.screenY
-      return { x, y }
+      let { imgInfo } = this.state
+      let ratio = imgInfo.fullWidth / imgInfo.width
+      let x = (xx - imgInfo.screenX) * ratio
+      let y = (yy - imgInfo.screenY) * ratio
+
+      return { x: dotPrecision(x, 2), y: dotPrecision(y, 2) }
     }
 
     getOffset(ee, se) {
       return {
-        offsetX: ee.clientX - se.clientX,
-        offsetY: ee.clientY - se.clientY,
+        offsetX: (ee.clientX - se.clientX) * this.zoomRatio,
+        offsetY: (ee.clientY - se.clientY) * this.zoomRatio,
       }
     }
 
@@ -253,11 +259,14 @@ export default function createApp(annotator, imgSrc, config) {
       const { createdNodes, msWidth, msHeight } = this.state
       return createdNodes.map(node => {
         if (node.type === "RECT") {
-          return <RectBox key={node.id} node={node} onUpdate={this._updateRect}/>
+          return <RectBox key={node.id}
+            node={node} onUpdate={this._updateRect}
+            ratio={this.zoomRatio}/>
         } else if (node.type === "POLYGON") {
           return <Polygon key={node.id} node={node}
             width={msWidth} height={msHeight}
-            onUpdate={this._updatePolygon}/>
+            onUpdate={this._updatePolygon}
+            ratio={this.zoomRatio}/>
         } else {
           // @TODO: add other node
           return null
