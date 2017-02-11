@@ -8,9 +8,11 @@ $rectBorder: solid 1px map-get($color-blue, "500");
   display: flex;
   align-items: center; // horizontal
   justify-content: center; // vertical-align
+  pointer-events: none;
 }
 
 .dla__rect_handle {
+  pointer-events: auto;
   position: absolute;
   width: 10px;
   height: 10px;

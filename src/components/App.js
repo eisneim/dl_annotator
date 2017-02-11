@@ -4,6 +4,7 @@ import Toolbar, { TOOLS } from './Toolbar'
 import Button, { Icon, IconButton } from "./Button"
 import AnnoDataBox from "./AnnoDataBox"
 import RectBox from "./RectBox"
+import Polygon from "./Polygon"
 import Dragable from "./ui/Dragable"
 
 import { getImgFromSrc } from '../utils/util.image.js'
@@ -191,6 +192,14 @@ export default function createApp(annotator, imgSrc, config) {
     _updateRect = (id, idx, coord) => {
       let nodes = this.state.createdNodes.slice()
       let node = nodes.find(n => n.id === id)
+      coord.id = node.points[idx].id
+      node.points[idx] = coord
+      this.setState({ createdNodes: nodes })
+    }
+    _updatePolygon = (id, idx, coord) => {
+      let nodes = this.state.createdNodes.slice()
+      let node = nodes.find(n => n.id === id)
+      coord.id = node.points[idx].id
       node.points[idx] = coord
       this.setState({ createdNodes: nodes })
     }
@@ -217,10 +226,14 @@ export default function createApp(annotator, imgSrc, config) {
     }
 
     $createdNodes() {
-      const { createdNodes } = this.state
+      const { createdNodes, msWidth, msHeight } = this.state
       return createdNodes.map(node => {
         if (node.type === "RECT") {
           return <RectBox key={node.id} node={node} onUpdate={this._updateRect}/>
+        } else if (node.type === "POLYGON") {
+          return <Polygon key={node.id} node={node}
+            width={msWidth} height={msHeight}
+            onUpdate={this._updatePolygon}/>
         } else {
           // @TODO: add other node
           return null

@@ -1,0 +1,29 @@
+$strokeColor: #4cc68f;
+
+.dla__polygon {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0; left: 0;
+  path {
+    // stroke: map-get($color-blue, "500");
+    stroke: $strokeColor;
+    fill: rgba(0, 200, 100, 0.3);
+  }
+  svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .dla__path_handle {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    border-radius: 5px;
+    border: solid 1px #fff;
+    cursor: move;
+    &:hover {
+      background-color: #fff;
+    }
+  }
+}
