@@ -38,6 +38,28 @@ export default function createApp(annotator, imgSrc, config) {
       return this.$mainSec.getBoundingClientRect()
     }
 
+    calcImgWidth(fullWidth, fullHeight, msWidth, msHeight, msTop, msLeft) {
+      let imgRatio = fullWidth / fullHeight
+      let avRatio = msWidth / msHeight
+      let width, height, screenX, screenY
+      // image is wider than wraper, landscape
+      if (imgRatio > avRatio && fullWidth > msWidth) {
+        width = msWidth
+        height = msWidth / imgRatio
+      } else if (fullHeight > msHeight && fullHeight > msHeight){
+        // portrait
+        height = msHeight
+        width = msHeight * imgRatio
+      } else {
+        width = fullWidth
+        height = fullHeight
+      }
+      screenX = msLeft + (msWidth - width) / 2
+      screenY = msTop + (msHeight - height) / 2
+
+      return { width, height, screenY, screenX, fullWidth, fullHeight}
+    }
+
     setImage() {
       let {
         imgInfo, msWidth, msHeight, msTop, msLeft,
@@ -45,28 +67,10 @@ export default function createApp(annotator, imgSrc, config) {
       // should firstly remove the old image in main section
 
       getImgFromSrc(imgInfo.src).then($img => {
-        let newInfo = Object.assign({}, imgInfo)
-        newInfo.fullWidth = $img.width
-        newInfo.fullHeight = $img.height
-        let imgRatio = $img.width / $img.height
-        let avRatio = msWidth / msHeight
-        // image is wider than wraper, landscape
-        if (imgRatio > avRatio && $img.width > msWidth) {
-          newInfo.width = msWidth
-          newInfo.height = msWidth / imgRatio
-        } else if ($img.height > msHeight && $img.height > msHeight){
-          // portrait
-          newInfo.height = msHeight
-          newInfo.width = msHeight * imgRatio
-        } else {
-          newInfo.width = $img.width
-          newInfo.height = $img.height
-        }
-        newInfo.screenX = msLeft + (msWidth - newInfo.width) / 2
-        newInfo.screenY = msTop + (msHeight - newInfo.height) / 2
-
-        log("newImgInfo", this.state, newInfo)
-        this.setState({ imgInfo: newInfo })
+        let calced = this.calcImgWidth($img.width, $img.height, msWidth, msHeight, msTop, msLeft)
+        calced.src = imgInfo.src
+        log("setImage newImgInfo", this.state, calced)
+        this.setState({ imgInfo: calced })
       })
     }
 
@@ -81,6 +85,26 @@ export default function createApp(annotator, imgSrc, config) {
       this.state.msTop = top
       this.state.msLeft = left
       if (this.state.imgInfo.src) this.setImage()
+      window.addEventListener("resize", this._updateDimention)
+    }
+
+    componentWillUnmount() {
+      window.removeEventListener("resize", this._updateDimention)
+    }
+
+    _updateDimention = () => {
+      let { imgInfo } = this.state
+      let { width, height, top, left } = this.getMainSecbounding()
+      let calced = this.calcImgWidth(imgInfo.fullWidth, imgInfo.fullHeight, width, height, top, left)
+      calced.src = imgInfo.src
+      // log("newImgInfo:", calced)
+      this.setState({
+        msWidth: width,
+        msHeight: height,
+        msTop: top,
+        msLeft: left,
+        imgInfo: calced
+      })
     }
 
     screenCoordToImgCoord(xx, yy) {
