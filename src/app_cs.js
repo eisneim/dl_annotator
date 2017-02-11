@@ -2,6 +2,7 @@
 import React from "react/dist/react"
 import ReactDOM from "react-dom/dist/react-dom"
 import createApp from './components/App'
+import { isInPolygonObj } from './utils/util.math.js'
 import path from "path"
 const log = require("./utils/util.log.js")("Index")
 log('chrome', chrome)
@@ -87,6 +88,31 @@ class DLAnnotator {
 
     return name
   }
+  // if a rect contains another rect or polygon, set it's parent child relationship
+  parentChildCheck(nodes) {
+    nodes.forEach(node => {
+      for (let ii = 0; ii < nodes.length; ii++) {
+        let target = nodes[ii]
+        if (target === node) continue
+        let pp = target.points
+        let isInTarget = true
+        for (let jj = 0; jj < node.points.length; jj++) {
+          let result = isInPolygonObj(node.points[jj], pp)
+          if (!result) {
+            isInTarget = false
+            break
+          }
+        }
+        if (isInTarget) {
+          target.child = node.id
+          node.parent = target.id
+          // constrain it to "one to one" relationship
+          break
+        }
+      }
+    })
+    return nodes
+  }
 
   saveFile(imgInfo, createdNodes, ) {
     let url = imgInfo.src
@@ -105,10 +131,15 @@ class DLAnnotator {
         filename += this.dataToStr(createdNodes) + ext
       } else {
         filename += ext
+        this.parentChildCheck(createdNodes)
+        // log("parentChildCheck:", createdNodes)
+        // return
       }
       let msg = {
         type: "SAVE_FILE", url, method, filename,
-        jsonString: JSON.stringify(Object.assign({}, imgInfo, { nodes: createdNodes })),
+        jsonString: JSON.stringify(Object.assign({}, imgInfo, {
+          nodes: createdNodes,
+        })),
         jsonFilename,
       }
       log("saveFile msg:", msg)
