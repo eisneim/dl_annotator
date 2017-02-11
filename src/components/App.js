@@ -28,7 +28,7 @@ export default function createApp(annotator, imgSrc, config) {
         selectedTool: "RECT",
         selectedNode: null,
         createdNodes: [],
-        disabledTools: ["CROP", "SCALE"],
+        disabledTools: ["CROP", "SCALE", "CONTOUR", "PENTOOL"],
       }
     }
 
@@ -93,6 +93,51 @@ export default function createApp(annotator, imgSrc, config) {
         offsetX: ee.clientX - se.clientX,
         offsetY: ee.clientY - se.clientY,
       }
+    }
+
+    polygonPoint(ee) {
+      let { selectedTool, createdNodes } = this.state
+      if (!this.polygonStart) {
+        let p = this.screenCoordToImgCoord(ee.clientX, ee.clientY)
+        let nodeId = annotator.id()
+        p.id = annotator.id()
+        let newNode = {
+          id: nodeId,
+          type: selectedTool,
+          points: [p],
+        }
+        this.polygonStart = {
+          idx: 0, nodeId,
+        }
+        let ns = createdNodes.slice()
+        ns.push(newNode)
+        this.setState({ createdNodes: ns })
+        return false
+      }
+      if (this.polygonStart.idx >= 3) {
+        this.polygonStart = null
+        // create new node
+        return this.polygonPoint(ee)
+      }
+
+      let newCoord = this.screenCoordToImgCoord(ee.clientX, ee.clientY)
+      newCoord.id = annotator.id()
+      let node = createdNodes.find(n => n.id === this.polygonStart.nodeId)
+      node.points.push(newCoord)
+      log("polygon new point:", node)
+      // increate idex
+      this.polygonStart.idx += 1
+      this.setState({ createdNodes: createdNodes.slice() })
+      // stop dragable behaviour
+      return false
+    }
+
+    _onWraperMouseDown = (ee) => {
+      let { selectedTool } = this.state
+      if (selectedTool === "POLYGON") {
+        return this.polygonPoint(ee)
+      }
+      return true
     }
 
     _dragMove = (ee, se) => {
@@ -203,7 +248,8 @@ export default function createApp(annotator, imgSrc, config) {
         <div className="dla__wraper" onClick={this._onOverlayClick}>
           <main className="dla__modal" data-layout="row">
             <section ref="mianSec" className="dla__main" data-flex>
-              <Dragable cascade className="dla_imgWraper" style={wraperStyle}
+              <Dragable cascade className="dla_imgWraper"
+                style={wraperStyle} onDown={this._onWraperMouseDown}
                 onMove={this._dragMove} onUp={this._dragUp}>
               { imgInfo.src && imgInfo.width ?
                 <img src={imgInfo.src}/>

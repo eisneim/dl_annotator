@@ -30,14 +30,18 @@ class Dragable extends React.Component {
     if (e.button !== 0) return
 
     if (!this.isDragable(e.target)) return
+    let shouldContinue = true
+
+    if (noPoro)
+      e.stopPropagation()
+
+    if (typeof onDown === 'function')
+      shouldContinue = onDown(e)
+    if (!shouldContinue) return
 
     document.addEventListener('mousemove', this._mouseMove)
     document.addEventListener('mouseup', this._mouseUp)
     this.startEvent = e.nativeEvent
-    if (typeof onDown === 'function')
-      onDown(e)
-    if (noPoro)
-      e.stopPropagation()
   }
 
   _mouseMove = e => {
