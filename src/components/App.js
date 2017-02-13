@@ -21,8 +21,8 @@ export default function createApp(annotator, imgSrc, config) {
         msWidth: 0,
         msHeight: 0,
         imgInfo: {
-          src: "http://7xownv.com2.z0.glb.qiniucdn.com/photos_office_5.JPG?imageView2/2/w/1000",
-          // src: imgSrc,
+          // src: "http://7xownv.com2.z0.glb.qiniucdn.com/photos_office_5.JPG?imageView2/2/w/1000",
+          src: imgSrc,
           width: 0, height: 0,
           fullWidth: 0, fullHeight: 0,
           screenX: 0, screenY: 0,
@@ -133,9 +133,8 @@ export default function createApp(annotator, imgSrc, config) {
         let nodeId = annotator.id()
         p.id = annotator.id()
         let newNode = {
-          id: nodeId,
-          type: selectedTool,
-          points: [p],
+          id: nodeId, type: selectedTool, points: [p],
+          "class": config.classes[config.defaultClass],
         }
         this.polygonStart = {
           idx: 0, nodeId,
@@ -178,6 +177,7 @@ export default function createApp(annotator, imgSrc, config) {
         start.id = annotator.id()
         let newNode = {
           id: annotator.id(), type: selectedTool, points: [ start ],
+          "class": config.classes[config.defaultClass],
         }
         if (selectedTool === "RECT")
           newNode.points.push(Object.assign({}, start, { id: annotator.id() }))
@@ -233,6 +233,14 @@ export default function createApp(annotator, imgSrc, config) {
       node.points[idx] = coord
       this.setState({ createdNodes: nodes })
     }
+    _updateNodeClass = (e, node) => {
+      let nodes = this.state.createdNodes.slice()
+      let idx = nodes.findIndex(n => n.id === node.id)
+      node.class = e.target.value
+      nodes[idx] = node
+      log("update nodeClass:", node.class, node)
+      this.setState({ createdNodes: nodes })
+    }
 
     _onSave = () => {
       let { imgInfo, createdNodes } = this.state
@@ -274,11 +282,26 @@ export default function createApp(annotator, imgSrc, config) {
       })
     }
 
+    $getClassList(node) {
+      return (
+        <select value={node.class} onChange={e => this._updateNodeClass(e, node)}>
+        {
+          config.classes.map((cc, idx) => <option key={idx} value={cc}>{cc}</option>)
+        }
+        </select>
+      )
+    }
+
     $getAnnoData() {
       const { createdNodes } = this.state
       return createdNodes.map(node => {
         let tool = TOOLS.find(t => t[0] == node.type)
-        return <AnnoDataBox title={tool[2] + node.id} data={node} key={node.id} onRemove={this._removeNode}/>
+        return (
+          <span key={node.id}>
+            <AnnoDataBox title={tool[2] + node.id} data={node} onRemove={this._removeNode}/>
+            { this.$getClassList(node) }
+          </span>
+        )
       })
     }
 

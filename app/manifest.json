@@ -29,7 +29,7 @@
   ],
   "background": {
     "persistent": true,
-    "scripts": ["livereload.js","js/background.js"]
+    "scripts": ["js/background.js"] //"livereload.js",
   },
   "content_scripts": [
     {

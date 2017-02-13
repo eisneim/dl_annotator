@@ -123,7 +123,7 @@ class DLAnnotator {
     let cleanUrl = this.parseUrl(url).pathname
     let ext = cleanUrl.substring(cleanUrl.lastIndexOf("."), cleanUrl.length)
 
-    chrome.storage.sync.get(["localSaveMethod", "idCount"], config => {
+    chrome.storage.sync.get(["localSaveMethod", "idCount", "defaultClass", "classes"], config => {
       let filename = config.idCount // Date.now().toString()
       let jsonFilename = filename + ".json"
       let method = config.localSaveMethod
@@ -132,8 +132,10 @@ class DLAnnotator {
       } else {
         filename += ext
         this.parentChildCheck(createdNodes)
-        // log("parentChildCheck:", createdNodes)
-        // return
+        // class check
+        createdNodes.forEach(n => {
+          if (!n.class) n.class = config.classes[config.defaultClass]
+        })
       }
       let msg = {
         type: "SAVE_FILE", url, method, filename,
@@ -157,7 +159,7 @@ class DLAnnotator {
 } // end of class
 
 var annotator = new DLAnnotator()
-annotator.render()
+// annotator.render()
 
 let msgHandlers = {
   OPEN_MODAL: (msg, sender, reply) => {

@@ -5,7 +5,7 @@ function log(...args) {
 
 let defaultConfig = {
   idCount: 0,
-  localSaveMethod: "FILENAME", // JSON
+  localSaveMethod: "JSON", // JSON
   classes: [
     "billboard",
     "ad-lampbox",
