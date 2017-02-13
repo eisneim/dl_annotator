@@ -1,6 +1,9 @@
 DL_Annotator
 ========
-WIP
+!!! WIP
+
+![screen shot](screenshot.jpg)
+![screen shot](screenshot1.jpg)
 
 ### TODO
  - scale and crop using canvas
@@ -9,3 +12,7 @@ WIP
  - keyboard shortcuts for save and other action
  - highlight images on webpage
  - set idCount in extension popup
+ - screen capture
+
+## install
+drag the packed "./app.crx" to chrome extension page to install, then click the extension icon on the top right hand side to configure it.
