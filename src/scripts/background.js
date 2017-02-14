@@ -39,6 +39,15 @@ let msgHandlers = {
       downloadId, success: true,
     }))
   },
+  UPLOAD_FILE: (msg, sender, reply) => {
+    let { jsonFilename, filename, imgBlob, jsonBlob } = msg
+
+    var formData = new FormData()
+    formData.append("image", imgBlob, filename)
+    formData.append("json", jsonBlob, jsonFilename)
+
+
+  },
 }
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   let fn = msgHandlers[msg.type]

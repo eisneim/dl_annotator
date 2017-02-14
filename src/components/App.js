@@ -247,8 +247,9 @@ export default function createApp(annotator, imgSrc, config) {
       annotator.saveFile(imgInfo, createdNodes)
     }
 
-    _onUpload = () => {
-      log("_onUpload!")
+    _onUpload = (i) => {
+      let { imgInfo, createdNodes } = this.state
+      annotator.upload(imgInfo, createdNodes)
     }
 
     _wraperClick = () => {
@@ -321,7 +322,7 @@ export default function createApp(annotator, imgSrc, config) {
                 style={wraperStyle} onDown={this._onWraperMouseDown}
                 onMove={this._dragMove} onUp={this._dragUp}>
               { imgInfo.src && imgInfo.width ?
-                <img src={imgInfo.src}/>
+                <img ref="mainImg" src={imgInfo.src}/>
                 : null
               }
               { this.$createdNodes() }

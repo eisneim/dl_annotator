@@ -3,6 +3,8 @@ import React from "react/dist/react"
 import ReactDOM from "react-dom/dist/react-dom"
 import createApp from './components/App'
 import { isInPolygonObj } from './utils/util.math.js'
+import { remoteToBlob } from "./utils/util.image.js"
+
 import path from "path"
 const log = require("./utils/util.log.js")("Index")
 log('chrome', chrome)
@@ -114,7 +116,7 @@ class DLAnnotator {
     return nodes
   }
 
-  saveFile(imgInfo, createdNodes, ) {
+  saveFile(imgInfo, createdNodes ) {
     let url = imgInfo.src
     if (!createdNodes || createdNodes.length === 0)
       return alert("No Annotation created")
@@ -154,6 +156,57 @@ class DLAnnotator {
       // increase idCount
       chrome.storage.sync.set({ idCount: config.idCount + 1})
     }) // end of get
+  }
+
+  upload(imgInfo, createdNodes ) {
+    let url = imgInfo.src
+    if (!createdNodes || createdNodes.length === 0)
+      return alert("No Annotation created")
+
+    // remove query stirng or other symbol: aa.jpg?size=l&color=1
+    let cleanUrl = this.parseUrl(url).pathname
+    let ext = cleanUrl.substring(cleanUrl.lastIndexOf("."), cleanUrl.length)
+
+    chrome.storage.sync.get(["idCount", "defaultClass", "classes", "server"], config => {
+      let filename = config.idCount // Date.now().toString()
+      let jsonFilename = filename + ".json"
+      filename += ext
+      this.parentChildCheck(createdNodes)
+      // class check
+      createdNodes.forEach(n => {
+        if (!n.class) n.class = config.classes[config.defaultClass]
+      })
+      let jsonString = JSON.stringify(Object.assign({}, imgInfo, { nodes: createdNodes }))
+      var jsonBlob = new Blob([jsonString], {type: "application/json"})
+      remoteToBlob(url, (err, imgBlob) => {
+        if (err) {
+          log("err", err)
+          return alert("image download failed")
+        }
+        // ---------- test code ------------
+
+        // return
+
+        var formData = new FormData()
+        formData.append("json", jsonBlob, jsonFilename)
+        formData.append("image", imgBlob, filename)
+
+        log("upload imgblob")
+        let oReq = new XMLHttpRequest()
+        oReq.open("POST", config.server, true)
+        oReq.onload = evt => {
+          let response = JSON.parse(oReq.responseText)
+          log("upload res:", response)
+          if (response.success) {
+            this.destroy()
+          } else {
+            alert(response.err)
+          }
+        }
+        oReq.send(formData)
+      }) // img blob
+      chrome.storage.sync.set({ idCount: config.idCount + 1})
+    }) // storage get
   }
 
 } // end of class

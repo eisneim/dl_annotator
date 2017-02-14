@@ -90,6 +90,9 @@ function setFormInitialValue() {
   return new Promise((resolve, reject) => {
     chrome.storage.sync.get(Object.keys(defaultConfig), config => {
       log("currentConfig:", config, Object.keys(defaultConfig))
+      let $idCount = $form.elements.idCount
+      $idCount.value = config.idCount
+
       let $defaultClass = $form.elements.defaultClass
       let $classes = document.getElementById("classes")
       // set <options>
@@ -138,6 +141,9 @@ $form.addEventListener("change", e => {
   } else if (target === elm.server) {
     chrome.storage.sync.set({ server: target.value })
     notify("Server address updated!")
+  } else if (target === elm.idCount) {
+    chrome.storage.sync.set({ idCount: target.value })
+    notify("idCount has been changed")
   }
 })
 
