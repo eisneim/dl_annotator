@@ -149,7 +149,7 @@ class SimpleHandler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
   from BaseHTTPServer import HTTPServer
-  server = HTTPServer(("localhost", 8080), SimpleHandler)
+  server = HTTPServer(("", 8080), SimpleHandler)
   print("Server started at 8080")
   server.serve_forever()
 

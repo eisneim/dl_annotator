@@ -154,7 +154,7 @@ class DLAnnotator {
         }
       }) // end of sendMessage
       // increase idCount
-      chrome.storage.sync.set({ idCount: config.idCount + 1})
+      chrome.storage.sync.set({ idCount: int(config.idCount) + 1})
     }) // end of get
   }
 
@@ -205,7 +205,7 @@ class DLAnnotator {
         }
         oReq.send(formData)
       }) // img blob
-      chrome.storage.sync.set({ idCount: config.idCount + 1})
+      chrome.storage.sync.set({ idCount: int(config.idCount) + 1})
     }) // storage get
   }
 
