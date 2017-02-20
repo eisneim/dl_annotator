@@ -27,6 +27,7 @@ def deDuplication(root, idx, file, files):
 
 def enumerateFiles(root, files):
   repeated = 0
+  invalidAnnotations = 0
   filenames = {}
   for idx, file in enumerate(files):
     fname, ext = splitext(file)
@@ -35,21 +36,23 @@ def enumerateFiles(root, files):
     filenames[fname].append(file)
 
     # only dup check image files
-    if not ext.lower() in [".jpg", ".png", ".gif"]:
-      continue
-    repeated += deDuplication(root, idx, file, files)
+    if ext.lower() in [".jpg", ".png", ".gif"]:
+      repeated += deDuplication(root, idx, file, files)
+    elif ext.lower() == ".json":
+      with open(file) as file:
+        annoData = json.load(file)
+      invalidAnnotations += 1 if checkAnnotation(file, annoData) else 0
 
-  print("repeated files: {}".format(repeated))
-
+    # ------------------
   removeCorruptedPair(filenames, root)
+  return (repeated, invalidAnnotations)
   # only travers top directory
 
 
-def checkPath(folder):
+def checkFolder(folder):
   for root, dirs, files in os.walk(folder):
     print("files count: {}".format(len(files)))
-    enumerateFiles(root, files)
-    break
+    return (root, files)
 
 
 def removeCorruptedPair(filenames, root):
@@ -60,10 +63,28 @@ def removeCorruptedPair(filenames, root):
       os.unlink(join(root, pair[0]))
 
 
-def checkData(jsonFile):
-  with open(jsonFile) as file:
-    data = json.load(file)
+def checkAnnotation(jsonFile, data):
+  # with open(jsonFile) as file:
+  #   data = json.load(file)
+  if len(data["nodes"]) < 2:
+    print("no sufficient nodes: {}".format(jsonFile))
+    return False
   # make sure a rect and a polygon node exits
+  # if len(data["nodes"]) % 2 != 0:
+  #   print("{} number of nodes is not an even number".format(jsonFile))
+
+  numRect, numPoly = 0
+  for node in data["nodes"]:
+    if node["type"] == "RECT":
+      numRect += 1
+    elif node["type"] == "POLYGON":
+      numPoly += 1
+
+  if numRect != numPoly:
+    msg = "unmatch node type, rect({}) polygon({}) in {}"
+    print(msg.format(numRect, numPoly, jsonFile))
+    return False
+  return True
 
 
 if __name__ == "__main__":
@@ -83,7 +104,16 @@ if __name__ == "__main__":
   assert os.path.exists(args.folder)
   startTime = time.time()
 
-  checkPath(args.folder)
+  root, files = checkFolder(args.folder)
+  repeated, invalidAnnotations = enumerateFiles(root, files)
+  print("repeated files: {}".format(repeated))
+
+  # if there is no repeated files, we should start to resize image
+  # this is an expensive operation
+  if repeated == 0:
+    print("---------------------------------")
+    print("start to check image size, resize large image file.")
+
 
   timediff = time.time() - startTime
   print("time usage: {:.2f}s".format(timediff))
