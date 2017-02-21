@@ -49,7 +49,7 @@ export default function createApp(annotator, imgSrc, config) {
       if (imgRatio > avRatio && fullWidth > msWidth) {
         width = msWidth
         height = msWidth / imgRatio
-      } else if (fullHeight > msHeight && fullHeight > msHeight){
+      } else if (imgRatio < avRatio && fullHeight > msHeight){
         // portrait
         height = msHeight
         width = msHeight * imgRatio

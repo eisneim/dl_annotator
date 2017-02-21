@@ -6,6 +6,7 @@ import json
 import filecmp
 import time
 
+parsedAnnotations = []
 
 def deDuplication(root, idx, file, files):
   # size = getsize(join(root, file))
@@ -26,6 +27,7 @@ def deDuplication(root, idx, file, files):
 
 
 def enumerateFiles(root, files):
+  global parsedAnnotations
   repeated = 0
   invalidAnnotations = 0
   filenames = {}
@@ -39,9 +41,16 @@ def enumerateFiles(root, files):
     if ext.lower() in [".jpg", ".png", ".gif"]:
       repeated += deDuplication(root, idx, file, files)
     elif ext.lower() == ".json":
-      with open(file) as file:
-        annoData = json.load(file)
-      invalidAnnotations += 1 if checkAnnotation(file, annoData) else 0
+      with open(file) as jsonFile:
+        annoData = json.load(jsonFile)
+      annoData["fname"] = fname
+      annoData["filename"] = file
+
+      isValid = checkAnnotation(file, annoData)
+      invalidAnnotations += 0 if isValid else 1
+      # save it to a global variable, so we can use it when resizing images
+      if isValid:
+        parsedAnnotations.append(annoData)
 
     # ------------------
   removeCorruptedPair(filenames, root)
@@ -98,6 +107,9 @@ if __name__ == "__main__":
     help="source folder that contains same class images")
   parser.add_argument("--cls", type=str, dest="cls",
     help="class that target folder's image belongs to")
+  parser.add_argument("--resize", type=bool, dest="resize", default=False, help="resize image or not")
+  parser.add_argument("--maxw", type=int, dest="maxw", default=500, help="maxium width")
+  parser.add_argument("--maxh", type=int, dest="maxh", default=500, help="maxium height")
 
   args = parser.parse_args()
   print("parsing: {}, target class: {}".format(args.folder, args.cls))
@@ -110,7 +122,7 @@ if __name__ == "__main__":
 
   # if there is no repeated files, we should start to resize image
   # this is an expensive operation
-  if repeated == 0:
+  if repeated == 0 and args.resize:
     print("---------------------------------")
     print("start to check image size, resize large image file.")
 
