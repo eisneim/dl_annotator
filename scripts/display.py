@@ -28,7 +28,7 @@ def getImg(img, zoomfactor=1):
   ratio = imgw / imgh
   # if image size is too big, resize it to fit window size and display
   destw = desth = 0
-  if ratio > __RATIO and imgw > __MAXW:
+  if ratio >= __RATIO and imgw > __MAXW:
     destw = __MAXW
     desth = __MAXW / ratio
     print("landscape oriantation: {}x{} => {}x{}".format(imgw,imgh,destw, desth))
@@ -140,7 +140,7 @@ def drawAnnotation(img, annotion, zoomfactor):
       pp = node["points"]
       p1 = (int(pp[0]["x"] * zoomfactor), int(pp[0]["y"] * zoomfactor))
       p2 = (int(pp[2]["x"] * zoomfactor), int(pp[2]["y"] * zoomfactor))
-      print("rect: {} {}".format(p1, p2))
+      # print("rect: {} {}".format(p1, p2))
       cv2.rectangle(img, p1, p2, (0, 255, 0), 2)
 
     elif node["type"] == "POLYGON":
@@ -160,6 +160,7 @@ def displayImg(root_folder, file, fname):
     annotion = json.load(jfile)
   # create mat to draw on
   originalImg = cv2.imread(file.path)
+  print("original: {}x{}".format(originalImg.shape[1], originalImg.shape[0]))
   img, zoomfactor = getImg(originalImg)
   if zoomfactor < 1:
     # put notify text
