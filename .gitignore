@@ -4,3 +4,4 @@ dist/
 app/js
 app/css
 npm-debug.log
+__pycache__

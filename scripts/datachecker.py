@@ -5,6 +5,7 @@ import argparse
 import json
 import filecmp
 import time
+from imgresize import resizeImages
 
 parsedAnnotations = []
 
@@ -13,6 +14,10 @@ def deDuplication(root, idx, file, files):
   count = 0
   for idx2, ff in enumerate(files):
     if idx == idx2:
+      continue
+
+    # skip json file
+    if ff.endswith(".json"):
       continue
 
     if filecmp.cmp(join(root, file), join(root, ff), shallow=False):
@@ -35,13 +40,14 @@ def enumerateFiles(root, files):
     fname, ext = splitext(file)
     if fname not in filenames:
       filenames[fname] = []
-    filenames[fname].append(file)
 
-    # only dup check image files
-    if ext.lower() in [".jpg", ".png", ".gif"]:
+    # only dup check image files, ".gif" not supported
+    if ext.lower() in [".jpg", ".png"]:
       repeated += deDuplication(root, idx, file, files)
+      filenames[fname].append(file)
     elif ext.lower() == ".json":
-      with open(file) as jsonFile:
+      jsonfilePath = join(root, file)
+      with open(jsonfilePath) as jsonFile:
         annoData = json.load(jsonFile)
       annoData["fname"] = fname
       annoData["filename"] = file
@@ -50,8 +56,12 @@ def enumerateFiles(root, files):
       invalidAnnotations += 0 if isValid else 1
       # save it to a global variable, so we can use it when resizing images
       if isValid:
+        filenames[fname].append(file)
         parsedAnnotations.append(annoData)
-
+      else:
+        os.unlink(jsonfilePath)
+    else:
+      filenames[fname].append(file)
     # ------------------
   removeCorruptedPair(filenames, root)
   return (repeated, invalidAnnotations)
@@ -82,17 +92,22 @@ def checkAnnotation(jsonFile, data):
   # if len(data["nodes"]) % 2 != 0:
   #   print("{} number of nodes is not an even number".format(jsonFile))
 
-  numRect, numPoly = 0
+  numRect = numPoly = 0
   for node in data["nodes"]:
     if node["type"] == "RECT":
       numRect += 1
     elif node["type"] == "POLYGON":
       numPoly += 1
+    # check points
+    if len(node["points"]) != 4:
+      print("insufficient points: {}".format(jsonFile))
+      return False
 
   if numRect != numPoly:
     msg = "unmatch node type, rect({}) polygon({}) in {}"
     print(msg.format(numRect, numPoly, jsonFile))
     return False
+
   return True
 
 
@@ -108,6 +123,7 @@ if __name__ == "__main__":
   parser.add_argument("--cls", type=str, dest="cls",
     help="class that target folder's image belongs to")
   parser.add_argument("--resize", type=bool, dest="resize", default=False, help="resize image or not")
+  parser.add_argument("--validation", type=bool, dest="validation", default=True, help="resize image or not")
   parser.add_argument("--maxw", type=int, dest="maxw", default=500, help="maxium width")
   parser.add_argument("--maxh", type=int, dest="maxh", default=500, help="maxium height")
 
@@ -117,15 +133,17 @@ if __name__ == "__main__":
   startTime = time.time()
 
   root, files = checkFolder(args.folder)
-  repeated, invalidAnnotations = enumerateFiles(root, files)
-  print("repeated files: {}".format(repeated))
+
+  if args.validation:
+    repeated, invalidAnnotations = enumerateFiles(root, files)
+    print("repeated files: {}, invalid annotations: {}".format(repeated, invalidAnnotations))
 
   # if there is no repeated files, we should start to resize image
   # this is an expensive operation
-  if repeated == 0 and args.resize:
+  if args.resize:
     print("---------------------------------")
     print("start to check image size, resize large image file.")
-
+    resizeImages(root, files, args.maxw, args.maxh)
 
   timediff = time.time() - startTime
   print("time usage: {:.2f}s".format(timediff))

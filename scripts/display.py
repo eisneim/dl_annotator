@@ -7,8 +7,8 @@ import cv2
 import numpy as np
 
 __WINNAME = "image"
-__MAXW = 800
-__MAXH = 800
+__MAXW = 600
+__MAXH = 600
 __RATIO = __MAXW / __MAXH
 ix, iy = -1, -1
 isDrawing = False
@@ -79,7 +79,7 @@ def crop(img, p1, p2, zoomfactor):
 def startCropEventListener(img, file, jfile, zoomfactor, originalImg, annotion):
   mat = [0]
   # help info
-  msg = 'drag to crop, press "enter" to confirm, press "esc" to skip'
+  msg = 'drag to crop, press "enter" to confirm, press "space" to skip'
   putText(img, msg, (10, img.shape[0] - 30))
 
   rect = [None, None]
@@ -106,7 +106,7 @@ def startCropEventListener(img, file, jfile, zoomfactor, originalImg, annotion):
     destImg = img + mat[0]
     cv2.imshow(__WINNAME, destImg)
     key = cv2.waitKey(20)
-    if key & 0xFF == 27 or key & 0xFF == 32: # esc or spacebar
+    if key & 0xFF == 32: # spacebar
       break
     elif key & 0xFF == 13:
       # should check for rect tange
@@ -185,6 +185,9 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=des)
   parser.add_argument("--folder", required=True, dest="folder", type=str,
     help="source folder path")
+  parser.add_argument("--start", dest="startIdx", type=int, default=0,
+    help="starting index, so we can skip previously checked files")
+
   args = parser.parse_args()
 
   # create a window to display image
@@ -195,19 +198,28 @@ if __name__ == "__main__":
 
   files = getFiles(args.folder)
   for idx, file in enumerate(files):
+    if idx < args.startIdx:
+      continue
+
     base, ext = splitext(file.name)
-    if ext.lower() in [".jpg", ".png", ".gif"]:
+    # ".gif" not supported
+    if ext.lower() in [".jpg", ".png"]:
+      print("idx: {} file: {}".format(idx, file.name))
       isCropNeeded = displayImg(args.folder, file, base)
       # waitKey has already been handled
       if isCropNeeded:
         continue
       key = cv2.waitKey(0)
       # enter:13 backspace: 8 left: 124 space: 32 c:99
-      print("pressed key: {}".format(key))
+      # print("pressed key: {}".format(key))
       if key == 8:
         # delete this image and json file
         os.unlink(file.path)
         os.unlink(join(args.folder, base + ".json"))
+
+      elif key & 0xFF == 27: #exit
+        print("------- exit ---------")
+        break
 
   cv2.destroyAllWindows()
 
