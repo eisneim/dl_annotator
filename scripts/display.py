@@ -49,15 +49,34 @@ def emptyCallback(event, x, y, flags, param):
   pass
 
 
+def updateFile(img, file, jfile, annotion, offset):
+  height, width, channel = img.shape
+  # orWidth = annotion["fullWidth"]
+  # orHeight = annotion["fullHeight"]
+  annotion["fullWidth"] = width
+  annotion["fullHeight"] = height
+  for node in annotion["nodes"]:
+    for point in node["points"]:
+      point["x"] -= offset[0]
+      point["y"] -= offset[1]
+  # dump file
+  print("update json file:{}".format(jfile))
+  with open(jfile, "w") as fout:
+    fout.write(json.dumps(annotion))
+  print("update img file")
+  cv2.imwrite(file.path, img)
+
+
 def crop(img, p1, p2, zoomfactor):
   startIdxH = min(p1[1], p2[1]) / zoomfactor
   endIdxH = max(p1[1], p2[1]) / zoomfactor
   startIdxW = min(p1[0], p2[0]) / zoomfactor
   endIdxW = max(p1[0], p2[0]) / zoomfactor
+  offset = (int(startIdxW), int(startIdxH))
 
-  return img[int(startIdxH):int(endIdxH), int(startIdxW):int(endIdxW), :]
+  return (img[int(startIdxH):int(endIdxH), int(startIdxW):int(endIdxW), :], offset)
 
-def startCropEventListener(img, file, jfile, zoomfactor, originalImg):
+def startCropEventListener(img, file, jfile, zoomfactor, originalImg, annotion):
   mat = [0]
   # help info
   msg = 'drag to crop, press "enter" to confirm, press "esc" to skip'
@@ -94,10 +113,13 @@ def startCropEventListener(img, file, jfile, zoomfactor, originalImg):
       if not rect[0] or not rect[1]:
         continue # not crop region created!
       print("now do the crop: {}".format(file.name))
-      img = crop(originalImg, rect[0], rect[1], zoomfactor)
+      img, offset = crop(originalImg, rect[0], rect[1], zoomfactor)
+      originalImg = img
+      zoomfactor = 1
       mat[0] = np.zeros(img.shape, np.uint8)
       # should update json file
-
+      updateFile(img, file, jfile, annotion, offset)
+      drawAnnotation(img, annotion, zoomfactor)
       # break
     elif key & 0xFF == 8: # backspace
       # delete this image and json file
@@ -110,6 +132,23 @@ def startCropEventListener(img, file, jfile, zoomfactor, originalImg):
 def putText(img, text, coord):
   font = cv2.FONT_HERSHEY_SIMPLEX
   cv2.putText(img, text, coord, font, 0.4, (0, 0, 255))
+
+def drawAnnotation(img, annotion, zoomfactor):
+  # draw all ndoes
+  for node in annotion["nodes"]:
+    if node["type"] == "RECT":
+      pp = node["points"]
+      p1 = (int(pp[0]["x"] * zoomfactor), int(pp[0]["y"] * zoomfactor))
+      p2 = (int(pp[2]["x"] * zoomfactor), int(pp[2]["y"] * zoomfactor))
+      print("rect: {} {}".format(p1, p2))
+      cv2.rectangle(img, p1, p2, (0, 255, 0), 2)
+
+    elif node["type"] == "POLYGON":
+      for idx, p in enumerate(node["points"]):
+        nextP = node["points"][idx + 1] if idx < 3 else node["points"][0]
+        cv2.line(img, (int(p["x"] * zoomfactor), int(p["y"]* zoomfactor)),
+          (int(nextP["x"]* zoomfactor), int(nextP["y"]* zoomfactor)), (255, 100, 0), 2)
+
 
 def displayImg(root_folder, file, fname):
   jfilename = fname + ".json"
@@ -129,24 +168,11 @@ def displayImg(root_folder, file, fname):
       img.shape[1], img.shape[0], zoomfactor)
     putText(img, text, (10, 40))
 
-  # draw all ndoes
-  for node in annotion["nodes"]:
-    if node["type"] == "RECT":
-      pp = node["points"]
-      p1 = (int(pp[0]["x"] * zoomfactor), int(pp[0]["y"] * zoomfactor))
-      p2 = (int(pp[2]["x"] * zoomfactor), int(pp[2]["y"] * zoomfactor))
-      print("rect: {} {}".format(p1, p2))
-      cv2.rectangle(img, p1, p2, (0, 255, 0), 2)
-
-    elif node["type"] == "POLYGON":
-      for idx, p in enumerate(node["points"]):
-        nextP = node["points"][idx + 1] if idx < 3 else node["points"][0]
-        cv2.line(img, (int(p["x"] * zoomfactor), int(p["y"]* zoomfactor)),
-          (int(nextP["x"]* zoomfactor), int(nextP["y"]* zoomfactor)), (255, 100, 0), 2)
+  drawAnnotation(img, annotion, zoomfactor)
 
   # event listener for croping
   if zoomfactor < 1:
-    startCropEventListener(img, file, jpath, zoomfactor, originalImg)
+    startCropEventListener(img, file, jpath, zoomfactor, originalImg, annotion)
     return True
   else:
     cv2.imshow(__WINNAME, img)
