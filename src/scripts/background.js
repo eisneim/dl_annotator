@@ -11,14 +11,48 @@ let menuItem = {
     // chrome.runtime.sendMessage(info,)
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
       info.type = "OPEN_MODAL"
-      chrome.tabs.sendMessage(tabs[0].id, info, function(response) {
-        console.log("tab contentscript:", response)
+      chrome.storage.sync.get("srcUrls", data => {
+        var urls = data.srcUrls || []
+        console.log("urls:", urls)
+        if (urls.indexOf(info.srcUrl) > -1) {
+          // notify user, they already annotated this image.
+          chrome.notifications.create("REPEATED", {
+            type: "image",
+            title: "repeated",
+            message: "you might already annotated this image",
+            iconUrl: "img/logo-128.png",
+            imageUrl: info.srcUrl,
+            isClickable: true,
+          })
+        } else {
+          urls.push(info.srcUrl)
+        }
+        // keep it lean, remove first half of it
+        if (urls.length > 99999) {
+          urls.shift()
+        }
+
+        chrome.tabs.sendMessage(tabs[0].id, info, function(response) {
+          console.log("tab contentscript:", response)
+          // save it back
+          chrome.storage.sync.set({ srcUrls: urls })
+        })
       })
+
+
     })
   },
 }
 
 chrome.contextMenus.create(menuItem)
+
+chrome.notifications.onClicked.addListener(notiID => {
+  // just remove it
+  if (notiID === "REPEATED") {
+    chrome.notifications.clear(notiID)
+  }
+})
+
 
 let msgHandlers = {
   SAVE_FILE: (msg, sender, reply) => {

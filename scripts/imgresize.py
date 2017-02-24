@@ -38,7 +38,7 @@ def updateFile(img, file, jfile, annotion, zoom):
       point["x"] = point["x"] * zoom
       point["y"] = point["y"] * zoom
   # dump file
-  print("update: {}".format(jfile))
+  print("resize update: {}".format(jfile))
   with open(jfile, "w") as fout:
     fout.write(json.dumps(annotion))
   cv2.imwrite(file, img)

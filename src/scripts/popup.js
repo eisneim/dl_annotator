@@ -15,6 +15,7 @@ let defaultConfig = {
   ],
   defaultClass: 1,
   server: "http://localhost:8000/upload",
+  srcUrls: [],
 }
 
 let $form = document.getElementById("mainForm")

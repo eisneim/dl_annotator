@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "dl-annotator",
   "version": "0.1.0",
-  "description": "create image annotation for object detection and localization",
+  "description": "create image annotations for object detection and localization",
   "author": "eisneim<eisneim1@gmail.com>",
   "homepage_url": "http://blog.glexe.com",
   "icons": {
