@@ -48,6 +48,8 @@ class DLAnnotator {
     addFontFace()
     // id counter
     this.__id = 0
+    // this dict will be set in App component
+    this.commands = {}
   }
 
   render(imgSrc) {
@@ -218,13 +220,16 @@ let msgHandlers = {
   OPEN_MODAL: (msg, sender, reply) => {
     log("should openModal")
     annotator.render(msg.srcUrl)
+  },
+  COMMAND: msg => {
+    annotator.commands[msg.command]()
   }
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   // request is the message
   // sender has id property, that's extension id
-  // log("msg", msg)
+  log("msg", msg)
   // log("sender", sender)
   let fn = msgHandlers[msg.type]
   if (fn) {

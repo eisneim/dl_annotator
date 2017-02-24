@@ -13,7 +13,7 @@ let menuItem = {
       info.type = "OPEN_MODAL"
       chrome.storage.sync.get("srcUrls", data => {
         var urls = data.srcUrls || []
-        console.log("urls:", urls)
+        // console.log("urls:", urls)
         if (urls.indexOf(info.srcUrl) > -1) {
           // notify user, they already annotated this image.
           chrome.notifications.create("REPEATED", {
@@ -83,6 +83,7 @@ let msgHandlers = {
 
   },
 }
+
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   let fn = msgHandlers[msg.type]
   if (fn) {
@@ -92,5 +93,15 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   }
   // asynchronously use reply
   return true
+})
+
+// ---------- shortcut key listener ----------------
+chrome.commands.onCommand.addListener(command => {
+  console.log("new command: ", command)
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, {
+      type: "COMMAND", command
+    })
+  })
 })
 

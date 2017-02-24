@@ -40,5 +40,28 @@
       ]
     }
   ],
-  "commands": {}
+  "commands": {
+    "SAVE": {
+      "suggested_key": {
+        "default": "Ctrl+3"
+        // "mac": "Command+Period"
+      },
+      "description": "Save as Files"
+    },
+    "SET_RECT": {
+      "suggested_key": {
+        "default": "Ctrl+1"
+        // "mac": "Option+R"
+      },
+      "description": "set active annotation tool as Rect"
+    },
+    "SET_POLYGON": {
+      "suggested_key": {
+        "default": "Ctrl+2"
+        // "mac": "Option++"
+      },
+      "description": "Set active annotation tool as Polygon"
+    }
+
+  }
 }

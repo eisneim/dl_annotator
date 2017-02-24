@@ -89,6 +89,10 @@ export default function createApp(annotator, imgSrc, config) {
       this.state.msLeft = left
       if (this.state.imgInfo.src) this.setImage()
       window.addEventListener("resize", this._updateDimention)
+
+      annotator.commands["SAVE"] = this._onSave
+      annotator.commands["SET_RECT"] = () => this._onSelectTool("RECT")
+      annotator.commands["SET_POLYGON"] = () => this._onSelectTool("POLYGON")
     }
 
     componentWillUnmount() {
