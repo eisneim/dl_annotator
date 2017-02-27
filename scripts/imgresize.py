@@ -6,6 +6,10 @@ import json
 
 def checkImage(file, maxw, maxh):
   img = cv2.imread(file)
+  if not hasattr(img, "shape"):
+    print("invalid image file: {}".format(file))
+    return (False, 1)
+
   zoomfactor = 1
   height, width, cc = img.shape
   ratio = width / height
@@ -44,8 +48,11 @@ def updateFile(img, file, jfile, annotion, zoom):
   cv2.imwrite(file, img)
 
 
-def resizeImages(root, files, maxw, maxh):
-  for file in files:
+def resizeImages(root, files, maxw, maxh, start=0):
+  for idx, file in enumerate(files):
+    if idx < start:
+      continue
+
     base, ext = splitext(file)
     jsonFile = join(root, base + ".json")
     # opencv doesn't support ".gif"
@@ -62,7 +69,7 @@ def resizeImages(root, files, maxw, maxh):
 
     with open(jsonFile) as fin:
       annotion = json.load(fin)
-
+    print(idx, end="  ")
     img, zoom = checkImage(join(root, file), maxw, maxh)
     if type(img) == bool:
       # print("not resize required")

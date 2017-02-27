@@ -126,6 +126,7 @@ if __name__ == "__main__":
   parser.add_argument("--validation", type=bool, dest="validation", default=True, help="resize image or not")
   parser.add_argument("--maxw", type=int, dest="maxw", default=500, help="maxium width")
   parser.add_argument("--maxh", type=int, dest="maxh", default=500, help="maxium height")
+  parser.add_argument("--start", type=int, dest="start", default=0, help="start index to resize")
 
   args = parser.parse_args()
   print("parsing: {}, target class: {}".format(args.folder, args.cls))
@@ -135,6 +136,7 @@ if __name__ == "__main__":
   root, files = checkFolder(args.folder)
 
   if args.validation:
+    print("-------------- start validation process -------------------")
     repeated, invalidAnnotations = enumerateFiles(root, files)
     print("repeated files: {}, invalid annotations: {}".format(repeated, invalidAnnotations))
 
@@ -143,7 +145,7 @@ if __name__ == "__main__":
   if args.resize:
     print("---------------------------------")
     print("start to check image size, resize large image file.")
-    resizeImages(root, files, args.maxw, args.maxh)
+    resizeImages(root, files, args.maxw, args.maxh, args.start)
 
   timediff = time.time() - startTime
   print("time usage: {:.2f}s".format(timediff))
