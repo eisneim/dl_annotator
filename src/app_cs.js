@@ -96,12 +96,24 @@ class DLAnnotator {
   parentChildCheck(nodes) {
     nodes.forEach(node => {
       for (let ii = 0; ii < nodes.length; ii++) {
+        let points = node.points
+        // 2 points rect to 4 points rect,
+        //i know the 2 point are topleft and bottom right
+        if (points.length === 2) {
+          points.push({ y: points[0].y, x: points[1].x })
+          points.push({ x: points[0].x, y: points[1].y })
+          // re-arrange order: tl - tr - br - bl
+          let fourth = points.splice(1, 1)[0]
+          points.splice(2, 0, fourth)
+        }
+
         let target = nodes[ii]
         if (target === node) continue
         let pp = target.points
         let isInTarget = true
-        for (let jj = 0; jj < node.points.length; jj++) {
-          let result = isInPolygonObj(node.points[jj], pp)
+        for (let jj = 0; jj < points.length; jj++) {
+          // --------------------
+          let result = isInPolygonObj(points[jj], pp)
           if (!result) {
             isInTarget = false
             break

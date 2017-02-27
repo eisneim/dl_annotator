@@ -22,14 +22,5 @@ export function isInPolygon(point, vs) {
 }
 
 export function isInPolygonObj(point, points) {
-  // 2 points rect to 4 points rect, i know the 2 point are topleft and bottom right
-  if (points.length === 2) {
-    points.push({ y: points[0].y, x: points[1].x })
-    points.push({ x: points[0].x, y: points[1].y })
-    // re-arrange order: tl - tr - br - bl
-    let fourth = points.splice(1, 1)[0]
-    points.splice(2, 0, fourth)
-  }
-
   return isInPolygon([point.x, point.y], points.map(p => [p.x, p.y]))
 }

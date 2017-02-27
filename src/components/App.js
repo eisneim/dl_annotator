@@ -248,6 +248,7 @@ export default function createApp(annotator, imgSrc, config) {
 
     _onSave = () => {
       let { imgInfo, createdNodes } = this.state
+      log("save nodes: ", createdNodes)
       annotator.saveFile(imgInfo, createdNodes)
     }
 
@@ -312,7 +313,6 @@ export default function createApp(annotator, imgSrc, config) {
 
     render() {
       const { imgInfo, disabledTools, selectedTool } = this.state
-
       const wraperStyle = {
         width: imgInfo.width,
         height: imgInfo.height,
