@@ -1,6 +1,6 @@
 import argparse
 import os
-from os.path import join, splitext, exists
+from os.path import join, splitext, exists, isabs
 import json
 import shutil
 from PIL import Image
@@ -8,11 +8,11 @@ import time
 # import numpy as np
 CLASSES = ["billboard", "banner", "ad-screen", "standing-lcd"]
 IDCOUNT = 0
+PAIRS = []
 
 
 def convert(width, height, node):
   if node["class"] not in CLASSES:
-    print("class: '{}' is not in class list, has been ignored".format(node["class"]))
     return False
   idx = CLASSES.index(node["class"])
   pp = node["points"]
@@ -30,6 +30,7 @@ def convert(width, height, node):
 
 def iterateFiles(dirname, imgsPath, labelsPath):
   global IDCOUNT
+  global PAIRS
   files = []
   with os.scandir(dirname) as it:
     for entry in it:
@@ -41,9 +42,16 @@ def iterateFiles(dirname, imgsPath, labelsPath):
 
     if ext.lower() in [".jpg", ".png"]:
       id = IDCOUNT
-      img = Image.open(file.path)
-      jsonPath = join(dirname, base + ".json")
+      try:
+        img = Image.open(file.path)
+      except:
+        print("!!!error open image {}, ignored".format(file.name))
+        continue
 
+      jsonPath = join(dirname, base + ".json")
+      if not exists(jsonPath):
+        print("missing json file: {}".format(base + ".json"))
+        continue
       with open(jsonPath, "r") as jfile:
         annotation = json.load(jfile)
 
@@ -57,6 +65,9 @@ def iterateFiles(dirname, imgsPath, labelsPath):
           if line:
             writedNode += 1
             fout.write(line + "\n")
+          else:
+            print("{} => class: '{}' is not in class list, has been ignored"
+              .format(file.name, node["class"]))
       # if no data is write, remove txt file
       if writedNode == 0:
         os.unlink(outTxt)
@@ -68,9 +79,11 @@ def iterateFiles(dirname, imgsPath, labelsPath):
         print(">> missing json file: {}".format(file.name))
         continue
       # os.rename(file.path, join(imgsPath, ))
-      shutil.copy2(file.path, join(imgsPath, "{}{}".format(id, ext)))
-
+      newImgPath = join(imgsPath, "{}{}".format(id, ext))
+      shutil.copy2(file.path, newImgPath)
       IDCOUNT += 1
+      # save pairs
+      PAIRS.append((newImgPath, jsonPath))
 
 
 if __name__ == "__main__":
@@ -82,16 +95,30 @@ if __name__ == "__main__":
     help="src folders contains images and it's json annotation")
 
   args = parser.parse_args()
+  cw = os.getcwd()
+  #convoert to absolute path
+  if not os.path.isabs(args.dest):
+    args.dest = os.path.normpath(join(cw, args.dest))
+
   print("parse images from: {} =====> {}".format(args.dirs, args.dest))
   startTime = time.time()
 
   imgsPath = join(args.dest, "images")
   labelsPath = join(args.dest, "labels")
-  if not exists(args.dest):
-    os.makedirs(imgsPath)
-    os.makedirs(labelsPath)
+
+  if not exists(imgsPath): os.makedirs(imgsPath)
+  if not exists(labelsPath): os.makedirs(labelsPath)
 
   for dirname in args.dirs:
     iterateFiles(dirname, imgsPath, labelsPath)
+
+  print("------ generating train and test list --------")
+  trainfile = open(join(args.dest, "train.txt"), "w")
+  testfile = open(join(args.dest, "test.txt"), "w")
+  for idx, pair  in enumerate(PAIRS):
+    if idx % 8 == 0:
+      testfile.write(pair[0] + "\n")
+    else:
+      trainfile.write(pair[0] + "\n")
 
   print(">>> done parsing {} images!({:.2f}s) ".format(IDCOUNT, time.time() - startTime))
