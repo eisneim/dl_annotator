@@ -77,7 +77,7 @@ def checkFolder(folder):
 def removeCorruptedPair(filenames, root):
   for fname in filenames:
     pair = filenames[fname]
-    if len(pair) < 2:
+    if len(pair) == 1 :
       print("corrupted pair: {}".format(pair))
       os.unlink(join(root, pair[0]))
 

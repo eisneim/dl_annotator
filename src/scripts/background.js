@@ -11,7 +11,7 @@ let menuItem = {
     // chrome.runtime.sendMessage(info,)
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
       info.type = "OPEN_MODAL"
-      chrome.storage.sync.get("srcUrls", data => {
+      chrome.storage.local.get("srcUrls", data => {
         var urls = data.srcUrls || []
         // console.log("urls:", urls)
         if (urls.indexOf(info.srcUrl) > -1) {
@@ -28,14 +28,17 @@ let menuItem = {
           urls.push(info.srcUrl)
         }
         // keep it lean, remove first half of it
-        if (urls.length > 99999) {
-          urls.shift()
+        let len = urls.length
+        console.log("urls: ", len)
+        if (len > 999) {
+          urls.splice(0, len - 999)
+          console.log("url len", urls.length)
         }
 
         chrome.tabs.sendMessage(tabs[0].id, info, function(response) {
           console.log("tab contentscript:", response)
           // save it back
-          chrome.storage.sync.set({ srcUrls: urls })
+          chrome.storage.local.set({ srcUrls: urls })
         })
       })
 

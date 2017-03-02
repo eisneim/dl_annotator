@@ -71,7 +71,8 @@ class DLAnnotator {
   parseUrl(url) {
     let aa = document.createElement("a")
     aa.href = url
-    return aa // now u have protocol, host, hostname, port, pathname, hash, search
+    // now u have protocol, host, hostname, port, pathname, hash, search
+    return aa.pathname
   }
 
   dataToStr(createdNodes) {
@@ -136,8 +137,12 @@ class DLAnnotator {
       return alert("No Annotation created")
 
     // remove query stirng or other symbol: aa.jpg?size=l&color=1
-    let cleanUrl = this.parseUrl(url).pathname
-    let ext = cleanUrl.substring(cleanUrl.lastIndexOf("."), cleanUrl.length)
+    let cleanUrl = this.parseUrl(url)
+    let ext = cleanUrl.substring(cleanUrl.lastIndexOf("."), cleanUrl.length) || "jpg"
+    ext = ext.split(/\!|\?|\=/)[0]
+    if ([".php", ".asp", ".aspx", ".jsp", ".html"].indexOf(ext)) {
+      ext = ".jpg"
+    }
 
     chrome.storage.sync.get(["localSaveMethod", "idCount", "defaultClass", "classes"], config => {
       let filename = config.idCount // Date.now().toString()
@@ -178,7 +183,7 @@ class DLAnnotator {
       return alert("No Annotation created")
 
     // remove query stirng or other symbol: aa.jpg?size=l&color=1
-    let cleanUrl = this.parseUrl(url).pathname
+    let cleanUrl = this.parseUrl(url)
     let ext = cleanUrl.substring(cleanUrl.lastIndexOf("."), cleanUrl.length)
 
     chrome.storage.sync.get(["idCount", "defaultClass", "classes", "server"], config => {
