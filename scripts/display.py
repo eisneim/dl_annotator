@@ -72,7 +72,15 @@ def crop(img, p1, p2, zoomfactor):
   endIdxH = max(p1[1], p2[1]) / zoomfactor
   startIdxW = min(p1[0], p2[0]) / zoomfactor
   endIdxW = max(p1[0], p2[0]) / zoomfactor
+  height, width, _ = img.shape
+  if startIdxW < 0: startIdxW = 0
+  if startIdxH < 0: startIdxH = 0
+  if endIdxW > width: endIdxW = width
+  if endIdxH > height: endIdxH = height
+
   offset = (int(startIdxW), int(startIdxH))
+
+
 
   return (img[int(startIdxH):int(endIdxH), int(startIdxW):int(endIdxW), :], offset)
 
@@ -160,6 +168,11 @@ def displayImg(root_folder, file, fname):
     annotion = json.load(jfile)
   # create mat to draw on
   originalImg = cv2.imread(file.path)
+  if not hasattr(originalImg, "shape"):
+    print("invalid image file: {}".format(file.name))
+    os.unlink(file.path)
+    return
+
   print("original: {}x{}".format(originalImg.shape[1], originalImg.shape[0]))
   img, zoomfactor = getImg(originalImg)
   if zoomfactor < 1:
@@ -204,7 +217,7 @@ if __name__ == "__main__":
 
     base, ext = splitext(file.name)
     # ".gif" not supported
-    if ext.lower() in [".jpg", ".png"]:
+    if ext.lower() in [".jpg", ".png", ".jpeg"]:
       print("idx: {} file: {}".format(idx, file.name))
       isCropNeeded = displayImg(args.folder, file, base)
       # waitKey has already been handled

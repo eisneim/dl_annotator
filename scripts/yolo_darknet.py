@@ -22,8 +22,17 @@ def convert(width, height, node):
   y2 = pp[2]["y"]
   x = min(x1, x2) / width
   y = min(y1, y2) / height
+  # this constrains make sure yolo's RPN weights will not be contaminated
+  if x < 0: x = 0
+  if y < 0: y = 0
+
   w = abs(x1 - x2) / width
   h = abs(y1 - y2) / height
+  if x + w > 1:
+    w = 1 - x
+  if y + h > 1:
+    h = 1 - y
+
 
   return "{idx} {x:.6f} {y:.6f} {w:.6f} {h:.6f}".format(idx=idx, x=x, y=y, w=w, h=h)
 
@@ -46,6 +55,12 @@ def iterateFiles(dirname, imgsPath, labelsPath):
         img = Image.open(file.path)
       except:
         print("!!!error open image {}, ignored".format(file.name))
+        continue
+
+      # check image width and height
+      if img.width < 50 or img.height < 50:
+        print("image too small({}x{}) {}".format(
+          img.width, img.height, file.name))
         continue
 
       jsonPath = join(dirname, base + ".json")

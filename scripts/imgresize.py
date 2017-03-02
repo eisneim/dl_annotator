@@ -56,7 +56,7 @@ def resizeImages(root, files, maxw, maxh, start=0):
     base, ext = splitext(file)
     jsonFile = join(root, base + ".json")
     # opencv doesn't support ".gif"
-    if ext.lower() not in [".jpg", ".png"]:
+    if ext.lower() not in [".jpg", ".png", ".jpeg"]:
       continue
 
     if not exists(join(root, file)):

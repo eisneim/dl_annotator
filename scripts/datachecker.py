@@ -9,6 +9,7 @@ from imgresize import resizeImages
 
 parsedAnnotations = []
 
+
 def deDuplication(root, idx, file, files):
   # size = getsize(join(root, file))
   count = 0
@@ -20,13 +21,16 @@ def deDuplication(root, idx, file, files):
     if ff.endswith(".json"):
       continue
 
-    if filecmp.cmp(join(root, file), join(root, ff), shallow=False):
-      count += 1
-      print('same file size: {}  {}'.format(file, ff))
-      # bad practice to mutate a list in a enumeration of itself
-      files.pop(idx2)
-      # try to remove the later one
-      os.unlink(join(root, ff))
+    try:
+      if filecmp.cmp(join(root, file), join(root, ff), shallow=False):
+        count += 1
+        print('same file size: {}  {}'.format(file, ff))
+        # bad practice to mutate a list in a enumeration of itself
+        files.pop(idx2)
+        # try to remove the later one
+        os.unlink(join(root, ff))
+    except OSError:
+      print("FileNotFoundError")
 
   return count
 
@@ -42,7 +46,7 @@ def enumerateFiles(root, files):
       filenames[fname] = []
 
     # only dup check image files, ".gif" not supported
-    if ext.lower() in [".jpg", ".png"]:
+    if ext.lower() in [".jpg", ".png", ".jpeg"]:
       repeated += deDuplication(root, idx, file, files)
       filenames[fname].append(file)
     elif ext.lower() == ".json":
