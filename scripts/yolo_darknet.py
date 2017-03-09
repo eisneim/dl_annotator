@@ -3,10 +3,11 @@ import os
 from os.path import join, splitext, exists, isabs
 import json
 import shutil
-from PIL import Image
+# from PIL import Image
+import cv2
 import time
 # import numpy as np
-CLASSES = ["billboard", "banner", "ad-screen", "standing-lcd"]
+CLASSES = ["ad-screen", "banner", "billboard", "ad-lampbox", "monitor", "road-sign", "standing-lcd"]
 IDCOUNT = 0
 PAIRS = []
 
@@ -48,19 +49,25 @@ def iterateFiles(dirname, imgsPath, labelsPath):
 
   for idx, file in enumerate(files):
     base, ext = splitext(file.name)
+    ext = ext.lower()
 
-    if ext.lower() in [".jpg", ".png"]:
+    if ext in [".jpg", ".png"]: # ignore , ".jpeg" file for now
       id = IDCOUNT
       try:
-        img = Image.open(file.path)
+        img = cv2.imread(file.path, cv2.IMREAD_COLOR)
       except:
         print("!!!error open image {}, ignored".format(file.name))
         continue
+      #make sure data is correct
+      if not hasattr(img, "shape"):
+        print("invalid image file: {}".format(file.name))
+        continue
+      height, width, _ = img.shape
 
       # check image width and height
-      if img.width < 50 or img.height < 50:
+      if width < 50 or height < 50:
         print("image too small({}x{}) {}".format(
-          img.width, img.height, file.name))
+          width, height, file.name))
         continue
 
       jsonPath = join(dirname, base + ".json")
@@ -70,13 +77,13 @@ def iterateFiles(dirname, imgsPath, labelsPath):
       with open(jsonPath, "r") as jfile:
         annotation = json.load(jfile)
 
-      outTxt = join(labelsPath, "{}.txt".format(id))
+      outTxt = join(labelsPath, "{}_{}.txt".format(base, id))
       writedNode = 0
       with open(outTxt, "w") as fout:
         for node in annotation["nodes"]:
           if node["type"] != "RECT":
             continue
-          line = convert(img.width, img.height, node)
+          line = convert(width, height, node)
           if line:
             writedNode += 1
             fout.write(line + "\n")
@@ -89,16 +96,22 @@ def iterateFiles(dirname, imgsPath, labelsPath):
         continue
 
       # move image to imgsPath
-      # make sure it's corresponding json file exits
+      # make sure its corresponding json file exits
       if not exists(jsonPath):
         print(">> missing json file: {}".format(file.name))
         continue
       # os.rename(file.path, join(imgsPath, ))
-      newImgPath = join(imgsPath, "{}{}".format(id, ext))
-      shutil.copy2(file.path, newImgPath)
+      # newImgPath = join(imgsPath, "{}{}".format(id, ext if ext != ".jpeg" else ".jpg"))
+      # shutil.copy2(file.path, newImgPath)
+      newImgPath = join(imgsPath, "{}_{}.jpg".format(base, id))
+      # ------------ resize image to 500 x 500 ----
+      # TODO
+
+      cv2.imwrite(newImgPath, img, [cv2.IMWRITE_JPEG_QUALITY, 80])
       IDCOUNT += 1
       # save pairs
       PAIRS.append((newImgPath, jsonPath))
+      print("file: {}".format(file.name))
 
 
 if __name__ == "__main__":
