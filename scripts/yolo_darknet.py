@@ -2,7 +2,7 @@ import argparse
 import os
 from os.path import join, splitext, exists, isabs
 import json
-import shutil
+# import shutil
 # from PIL import Image
 import cv2
 import time
@@ -34,8 +34,10 @@ def convert(width, height, node):
   if y + h > 1:
     h = 1 - y
 
+  centerX = x + w / 2
+  centerY = y + h / 2
 
-  return "{idx} {x:.6f} {y:.6f} {w:.6f} {h:.6f}".format(idx=idx, x=x, y=y, w=w, h=h)
+  return "{idx} {x:.6f} {y:.6f} {w:.6f} {h:.6f}".format(idx=idx, x=centerX, y=centerY, w=w, h=h)
 
 
 def iterateFiles(dirname, imgsPath, labelsPath):
